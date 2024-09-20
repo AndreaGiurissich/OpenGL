@@ -161,6 +161,8 @@
     <ClInclude Include="Vec4.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\POG\Chess\Shader1.frag" />
+    <None Include="..\..\..\POG\Chess\Shader.vert" />
     <None Include="sbus.frag" />
     <None Include="sbus.vert" />
   </ItemGroup>
