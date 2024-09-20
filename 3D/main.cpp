@@ -2,9 +2,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "stb_image.h"
+#include "GLCommon.h"
 #include <iostream>
 #include "../../OpenGL/OpenGL/3D/Camera.h"
 #include "VBO.h"
+#include "EBO.h"
 
 
 const unsigned int width = 800;
@@ -51,16 +53,6 @@ int main()
 		 0.5f, 0.0f,  0.5f,     0.0f, 1.0f, 0.0f,    	5.0f, 0.0f,
 		 0.0f, 0.8f,  0.0f,     1.0f,  0.0f,  0.0f,	2.5f, 5.0f
 	};
-
-	// Indices for vertices order
-	GLuint indices[] =
-	{
-		0, 1, 2,
-		0, 2, 3,
-		0, 1, 4,
-		1, 2, 4,
-		2, 3, 4,
-		3, 0, 4
 	};
 
 
@@ -84,7 +76,7 @@ int main()
 	EBO1.Unbind();
 
 	texture1.texUnit(program1, "texture1", 0);
-
+	
 	// Variables that help the rotation of the pyramid
 	float rotation = 0.0f;
 	double prevTime = glfwGetTime();
@@ -145,6 +137,8 @@ int main()
 		glActiveTexture(GL_TEXTURE0);
 		texture1.Bind();
 
+
+		program1.UseProgram();
 		VAO1.Bind();
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
@@ -167,34 +161,34 @@ int main()
 
 
 void processInput(GLFWwindow* window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
+	{
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-		numSquares = 1;
+		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+			numSquares = 1;
 
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-		numSquares = 2;
+		if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+			numSquares = 2;
 
-	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		numSquares = 3;
+		if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+			numSquares = 3;
 
-	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-		numSquares = 4;
+		if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+			numSquares = 4;
 
-	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
-		numSquares = 5;
+		if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
+			numSquares = 5;
 
-	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
-		numSquares = 6;
+		if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
+			numSquares = 6;
 
-	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS)
-		numSquares = 7;
+		if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS)
+			numSquares = 7;
 
-	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS)
-		numSquares = 8;
+		if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS)
+			numSquares = 8;
 
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
-		numSquares = 9;
-}
+		if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
+			numSquares = 9;
+	}

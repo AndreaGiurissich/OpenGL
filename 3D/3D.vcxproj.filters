@@ -103,6 +103,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\POG\Chess\Shader1.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\POG\Chess\Shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="sbus.vert">
       <Filter>Resource Files</Filter>
     </None>

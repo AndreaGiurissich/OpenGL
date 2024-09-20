@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\POG\Chess\EBO.cpp" />
     <ClCompile Include="..\..\..\POG\Chess\functions.cpp" />
+    <ClCompile Include="..\..\..\POG\Chess\main.cpp" />
     <ClCompile Include="..\..\..\POG\Chess\shaderClass.cpp" />
     <ClCompile Include="..\..\..\POG\Chess\Texture.cpp" />
     <ClCompile Include="..\..\..\POG\Chess\VAO.cpp" />
@@ -171,6 +172,8 @@
     <ClInclude Include="Vec4.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\POG\Chess\Shader1.frag" />
+    <None Include="..\..\..\POG\Chess\Shader.vert" />
     <None Include="sbus.frag" />
     <None Include="sbus.vert" />
   </ItemGroup>
