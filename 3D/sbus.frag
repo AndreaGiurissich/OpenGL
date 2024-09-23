@@ -10,5 +10,5 @@ uniform int numSquares;
 
 void main()
 {
-	FragColor = texture(texture1, TexCoord * 0.5f * numSquares) * vec4(ourColor, 1.0f);
+	FragColor = texture(texture1, TexCoord) + vec4(ourColor, 1.0f);
  };
