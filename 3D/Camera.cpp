@@ -31,11 +31,13 @@ void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shade
 
 	// Makes camera look in the right direction from the right position
 	view = view.lookAt(Position, center, Up);
+
 	// Adds perspective to the scene
 	projection = projection.persp(FOVdeg, width , height, nearPlane, farPlane);
+	projection.tras();
 
 	Mat4 pv = projection * view;
-
+	
 	// Exports the camera matrix to the Vertex Shader
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_TRUE, &pv.m[0][0]);
 }

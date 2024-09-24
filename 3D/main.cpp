@@ -90,11 +90,9 @@ int main()
 
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
-
 	// Creates camera object
 	Camera camera(width, height, Vec3(0.0f, 0.0f, 2.0f));
 
-	camera.Matrix(90.0f, 0.1f, 100.0f, program1, "camMatrix");
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	//Ciclo di rendering
@@ -114,10 +112,10 @@ int main()
 		// Handles camera inputs
 		camera.inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
+		camera.Matrix(90.0f, 0.1f, 100.0f, program1, "camMatrix");
 
 		VAO1.Bind();
-		glDrawElements(GL_TRIANGLES, (sizeof(indices))/sizeof(int), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
 		program1.setInt("numSquares", numSquares);
 
