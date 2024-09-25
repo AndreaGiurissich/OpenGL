@@ -84,12 +84,11 @@ Vec3 Vec3::operator*(const float i)
 	return { x * i, y * i, z * i };
 }
 
-float Vec3::operator*(Vec3 v)
+float Vec3::dot(Vec3 v)
 {
 	return x * v.x + y * v.y + z * v.z;
 
 }
-
 
 Vec3 Vec3::cross(const Vec3& v)
 {
@@ -107,12 +106,11 @@ Vec3 Vec3::getNormalized()
 	return { x / n, y / n, z / n };
 }
 
-void Vec3::normalize()
+Vec3 Vec3::normalize()
 {
 	float n = this->norm();
-	x /= n;
-	y /= n;
-	z /= n;
+	Vec3 v = Vec3(x /= n, y /= n, z /= n);
+	return v;
 }
 
 Vec3 Vec3::rotate(float angle, const Vec3& axis) const
@@ -139,7 +137,7 @@ Vec3 Vec3::rotate(float angle, const Vec3& axis) const
 
 float Vec3::angle(Vec3& v)
 {
-	float prodScal = *this * v;
+	float prodScal = *this.dot(v);
 	float v_length = this->norm();
 	float w_length = v.norm();
 

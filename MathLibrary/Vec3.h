@@ -27,14 +27,15 @@ public:
 	//Aritmetica
 	Vec3 operator+(Vec3 v) const;
 	Vec3 operator-(Vec3 v);
-	float operator*(Vec3 v);
 	Vec3 operator*(const float i);
 
 	//Funzioni
+	float dot(Vec3 v);
 	Vec3 cross(const Vec3& v);
 	float norm();
 	Vec3 getNormalized();
-	void normalize();
+	float dot(Vec3 v);
+	Vec3 normalize();
 	Vec3 rotate(float angle, const Vec3& axis) const;
 	float angle(Vec3& v);
 };
