@@ -22,24 +22,10 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 	cameraMatrix = projection * view;
 }
 
-void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform)
+void Camera::Matrix(Shader& shader, const char* uniform)
 {
-	// Initializes matrices since otherwise they will be the null matrix
-	Mat4 view = Mat4();
-	Mat4 projection = Mat4();
-	Vec3 center = Position + Orientation;
-
-	// Makes camera look in the right direction from the right position
-	view = view.lookAt(Position, center, Up);
-
-	// Adds perspective to the scene
-	projection = projection.persp(FOVdeg, width , height, nearPlane, farPlane);
-	projection.tras();
-
-	Mat4 pv = projection * view;
-	
 	// Exports the camera matrix to the Vertex Shader
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_TRUE, &pv.m[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_TRUE, &cameraMatrix.m[0][0]);
 }
 
 

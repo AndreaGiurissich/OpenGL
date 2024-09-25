@@ -43,6 +43,7 @@ public:
 	Mat4 inversa();
 
 	Mat4 traslazione(float x, float y, float z);
+	Mat4 traslazione(Vec3 v);
 	Mat4 scala(float x, float y, float z);
 	Mat4 rotazioneX(float angolo);
 	Mat4 rotazioneY(float angolo);
