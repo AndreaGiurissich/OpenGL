@@ -31,6 +31,7 @@ public:
 	float norm();
 	Vec4 getNormalized();
 	void normalize();
+	void print();
 
 	friend std::ostream& operator<<(std::ostream& out, const Vec4& v);
 

@@ -4,7 +4,7 @@
 #include "stb_image.h"
 #include "GLCommon.h"
 #include <iostream>
-
+#include "Algebra_Lineare.h"
 #include "Camera.h"
 #include "Texture.h"
 #include "shaderClass.h"
@@ -48,11 +48,11 @@ int main()
 	// Vertices coordinates
 	GLfloat vertices[] =
 	{ //     COORDINATES     /        COLORS      /   TexCoord  //
-		-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-		-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-		 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-		 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-		 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
+		-0.5f, 0.0f,  0.5f,     0.0f, 0.0f, 0.1f,	0.0f, 0.0f,
+		-0.5f, 0.0f, -0.5f,     0.0f, 1.0f, 0.0f,	5.0f, 0.0f,
+		 0.5f, 0.0f, -0.5f,     0.0f, 0.0f, 0.1f,	0.0f, 0.0f,
+		 0.5f, 0.0f,  0.5f,     0.0f, 1.0f, 0.0f,	5.0f, 0.0f,
+		 0.0f, 0.8f,  0.0f,     1.0f, 0.0f, 0.0f,	2.5f, 5.0f
 	};
 
 	// Indices for vertices order
@@ -86,7 +86,6 @@ int main()
 	EBO1.Unbind();
 
 	texture1.texUnit(program1, "texture1", 0);
-
 
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);

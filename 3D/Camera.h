@@ -2,6 +2,7 @@
 #include "Texture.h"
 #include "Algebra_Lineare.h"
 
+
 class Camera
 {
 public:

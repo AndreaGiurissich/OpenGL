@@ -107,3 +107,11 @@ void Vec4::normalize()
 	z /= n;
 	w /= n;
 }
+
+void Vec4::print()
+{
+	std::cout << "| " << x << " |\n";
+	std::cout << "| " << y << " |\n";
+	std::cout << "| " << z << " |\n";
+	std::cout << "| " << w << " |\n";
+}
