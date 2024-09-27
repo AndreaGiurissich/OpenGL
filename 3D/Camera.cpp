@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <corecrt_math_defines.h>
+
 Camera::Camera(float width, float height, Vec3 position)
 {
 	Camera::width = width;
@@ -16,7 +18,7 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 	// Makes camera look in the right direction from the right position
 	view = view.lookAt(Position, Position + Orientation, Up);
 	// Adds perspective to the scene
-	projection = projection.persp(FOVdeg, width, height, nearPlane, farPlane);
+	projection = projection.perspective(FOVdeg, width/height, nearPlane, farPlane);
 
 	// Sets new camera matrix
 	cameraMatrix = projection * view;
@@ -64,7 +66,7 @@ void Camera::inputs(GLFWwindow* window)
 	}
 	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 	{
-		speed = 0.001f;
+		speed = 0.01f;
 	}
 
 
@@ -93,15 +95,18 @@ void Camera::inputs(GLFWwindow* window)
 		float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 
 		// Calculates upcoming vertical change in the Orientation
-
-		Vec3 newOrientation = Orientation.rotate(-rotX, v);
+		Vec3 v1 = Orientation.cross(Up);
+		v1.normalize();
+		Vec3 newOrientation = Orientation.rotate(-rotX, v1);
 
 		// Decides whether or not the next vertical Orientation is legal or not
-		if ((abs(newOrientation.angle(Up) - 90.0f))<= 85.0f)
+		if (abs(newOrientation.angle(Up) - 90.0f) <= 85.0f)
 		{
 			Orientation = newOrientation;
+			std::cout << Orientation.angle(Up) << std::endl;
+			
 		}
-
+		
 		// Rotates the Orientation left and right
 		Orientation = Orientation.rotate(-rotY, Up);
 

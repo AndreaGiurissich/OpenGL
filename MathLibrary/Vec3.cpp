@@ -137,7 +137,7 @@ Vec3 Vec3::rotate(float angle, const Vec3& axis) const
 
 float Vec3::angle(Vec3& v)
 {
-	float prodScal = *this.dot(v);
+	float prodScal = this->dot(v);
 	float v_length = this->norm();
 	float w_length = v.norm();
 
@@ -147,7 +147,9 @@ float Vec3::angle(Vec3& v)
 	float cosAngle = prodScal / (v_length * w_length);
 	float radians = std::acos(cosAngle);
 
-	return radians;
+	float angle = radians * (180.0f / M_PI);
+
+	return angle;
 }
 
 

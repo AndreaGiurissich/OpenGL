@@ -265,6 +265,152 @@ Mat4 Mat4::tras()
 			 m[0][3], m[1][3], m[2][3], m[3][3] };
 }
 
+
+//traslazione
+Mat4 Mat4::translation(Vec3 d) {
+	Mat4 mat(1.0f, 0.0f, 0.0f, d.x,
+		     0.0f, 1.0f, 0.0f, d.y,
+		     0.0f, 0.0f, 1.0f, d.z,
+		     0.0f, 0.0f, 0.0f, 1.0f);
+	return *this * mat;
+}
+
+//scala
+Mat4 Mat4::scale( Vec3 s) {
+	 Mat4 mat(s.x, 0.0f, 0.0f, 0.0f,
+			  0.0f, s.y, 0.0f, 0.0f,
+			  0.0f, 0.0f, s.z, 0.0f,
+			  0.0f, 0.0f, 0.0f, 1.0f);
+	 return *this * mat;
+}
+
+//rotazione
+Mat4 Mat4::rotation(float degrees, Vec3 axis) {
+	Mat4 result;
+
+	float radians = degrees * (M_PI / 180.0f);
+	float cosTheta = std::cos(radians);
+	float sinTheta = std::sin(radians);
+	float oneMinusCosTheta = 1.0f - cosTheta;
+
+	float x = axis.x;
+	float y = axis.y;
+	float z = axis.z;
+
+	result.m[0][0] = cosTheta + x * x * oneMinusCosTheta;
+	result.m[0][1] = x * y * oneMinusCosTheta - z * sinTheta;
+	result.m[0][2] = x * z * oneMinusCosTheta + y * sinTheta;
+	result.m[0][3] = 0.0f;
+		   
+	result.m[1][0] = y * x * oneMinusCosTheta + z * sinTheta;
+	result.m[1][1] = cosTheta + y * y * oneMinusCosTheta;
+	result.m[1][2] = y * z * oneMinusCosTheta - x * sinTheta;
+	result.m[1][3] = 0.0f;
+		   
+	result.m[2][0] = z * x * oneMinusCosTheta - y * sinTheta;
+	result.m[2][1] = z * y * oneMinusCosTheta + x * sinTheta;
+	result.m[2][2] = cosTheta + z * z * oneMinusCosTheta;
+	result.m[2][3] = 0.0f;
+		   
+	result.m[3][0] = 0.0f;
+	result.m[3][1] = 0.0f;
+	result.m[3][2] = 0.0f;
+	result.m[3][3] = 1.0f;
+
+	return *this * result;
+}
+
+//Perspective
+Mat4 Mat4::perspective(float fov, float aspect, float near, float far) {
+
+	Mat4 result;
+
+	float yScale = 1.0 / tan((M_PI / 180) * fov / 2);
+	float xScale = yScale / aspect;
+
+	result.m[0][0] = xScale;
+	result.m[0][1] = 0.0f;
+	result.m[0][2] = 0.0f;
+	result.m[0][3] = 0.0f;
+	result.m[1][0] = 0.0f;
+	result.m[1][1] = yScale;
+	result.m[1][2] = 0.0f;
+	result.m[1][3] = 0.0f;
+	result.m[2][0] = 0.0f;
+	result.m[2][1] = 0.0f;
+	result.m[2][2] = (far + near) / (near - far);
+	result.m[2][3] = (2.0f * far * near) / (near - far);
+	result.m[3][0] = 0.0f;
+	result.m[3][1] = 0.0f;
+	result.m[3][2] = -1.0f;
+	result.m[3][3] = 0.0f;
+
+	return *this * result;
+}
+
+Mat4 Mat4::orthographic(float fov, float aspect, float near, float far) {
+
+	Mat4 result;
+
+	float yScale = 1.0 / near * (tan((M_PI / 180) * fov / 2));
+	float xScale = yScale / aspect;
+
+	result.m[0][0] = xScale;
+	result.m[0][1] = 0.0f;
+	result.m[0][2] = 0.0f;
+	result.m[0][3] = 0.0f;
+	result.m[1][0] = 0.0f;
+	result.m[1][1] = yScale;
+	result.m[1][2] = 0.0f;
+	result.m[1][3] = 0.0f;
+	result.m[2][0] = 0.0f;
+	result.m[2][1] = 0.0f;
+	result.m[2][2] = 2.0f / (near - far);
+	result.m[2][3] = (far + near) / (near - far);
+	result.m[3][0] = 0.0f;
+	result.m[3][1] = 0.0f;
+	result.m[3][2] = 0.0f;
+	result.m[3][3] = 1.0f;
+
+	return *this * result;
+}
+
+//LookAt
+Mat4 Mat4::lookAt(Vec3 eye, Vec3 center, Vec3 up) {
+	Vec3 forward = (eye - center).normalize();
+	Vec3 right = (up.cross(forward)).normalize();
+	Vec3 newUp = (forward.cross(right)).normalize();
+
+	Mat4 result(
+		right.x, right.y, right.z, -right.dot(eye),
+		newUp.x, newUp.y, newUp.z, -newUp.dot(eye),
+	    forward.x, forward.y, forward.z, -forward.dot(eye),
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+	return *this * result;
+}
+
+//LookAt Cubemap
+Mat4 Mat4::lookAtCubemap(Vec3 eye, Vec3 target, Vec3 up) {
+	Vec3 forward = (target - eye).normalize();
+	Vec3 right = (forward.cross(up)).normalize();
+	Vec3 newUp = right.cross(forward);
+
+	Mat4 result(
+		right.x, right.y, right.z, 0.0f,
+		newUp.x, newUp.y, newUp.z, 0.0f,
+		-forward.x, -forward.y, -forward.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+
+	return *this * result;
+}
+
+const float* Mat4::value_ptr() const {
+	return &m[0][0];
+}
+
 Mat4 Mat4::inversa()
 {
 	float det = this->det();
@@ -318,124 +464,6 @@ Mat4 Mat4::inversa()
 
 		return mat.tras();
 	}
-}
-
-Mat4 Mat4::traslazione(float x, float y, float z)
-{
-	m[0][3] += x;
-	m[1][3] += y;
-	m[2][3] += z;
-
-	return *this;
-}
-
-Mat4 Mat4::traslazione(Vec3 v)
-{
-	m[0][3] += v.x;
-	m[1][3] += v.y;
-	m[2][3] += v.z;
-
-	return *this;
-}
-
-Mat4 Mat4::scala(float x, float y, float z)
-{
-	m[0][0] *= x;
-	m[1][1] *= y;
-	m[2][2] *= z;
-
-	return *this;
-}
-
-Mat4 Mat4::rotazioneX(float angolo)
-{
-	//prima mi metto l'angolo in radianti
-	double rad = (angolo * M_PI) / 180;
-	//cambio le componenti della mia matrice identità
-	m[1][1] = cos(rad);
-	m[1][2] = sin(rad);
-	m[2][1] = -sin(rad);
-	m[2][2] = cos(rad);
-
-	return *this;
-}
-
-Mat4 Mat4::rotazioneY(float angolo)
-{
-	double rad = (angolo * M_PI) / 180;
-
-	m[0][0] = cos(rad);
-	m[0][2] = -sin(rad);
-	m[2][0] = sin(rad);
-	m[2][2] = cos(rad);
-
-	return *this;
-}
-
-Mat4 Mat4::rotazioneZ(float angolo)
-{
-	double rad = (angolo * M_PI) / 180;
-
-	m[0][0] = cos(rad);
-	m[0][1] = -sin(rad);
-	m[1][0] = sin(rad);
-	m[1][1] = cos(rad);
-
-	return *this;
-}
-
-Mat4 Mat4::persp(float fov_y, float width, float height, float near, float far)
-{
-	float rad = (fov_y * M_PI) / 180;
-	float a = width / height;
-	float c = 1.0f / tan(rad / 2.0f);
-
-	float b = -(far + near) / (far - near);
-	float d = -(2 * far * near) / (far - near);
-
-	return { (c / a), 0.0f, 0.0f, 0.0f,
-			0.0f, c, 0.0f, 0.0f,
-			0.0f, 0.0f, b, d,
-			0.0f, 0.0f, -1.0f, 0.0f };
-}
-
-Mat4 Mat4::lookAt(Vec3 eye, Vec3 center, Vec3 up)
-{
-	Vec3 F = (center - eye); //In caso cambiare ordine
-	F.normalize();
-	Vec3 UP = up;
-	UP.normalize();
-
-	Vec3 s = F.cross(UP);
-	s.normalize();
-
-	Vec3 u = s.cross(F);
-	u.normalize();
-
-
-
-	Mat4 m = Mat4(1.0f);
-	m.m[0][0] = s.x;
-	m.m[0][1] = u.x;
-	m.m[0][2] =-F.x; //cambiare  in -z.a?
-	m.m[0][3] = -eye.x;
-
-	m.m[1][0] =  s.y;
-	m.m[1][1] =  u.y;
-	m.m[1][2] = -F.y; //cambiare  in -z.a?
-	m.m[1][3] = -eye.y;
-
-	m.m[2][0] =  s.z;
-	m.m[2][1] =  u.z;
-	m.m[2][2] = -F.z; //cambiare  in -z.a?
-	m.m[2][3] = -eye.z;
-
-	m.m[3][0] = 0.0;
-	m.m[3][1] = 0.0;
-	m.m[3][2] = 0.0;
-	m.m[3][3] = 1.0f;
-
-	return m;
 }
 
 ostream& operator<<(ostream& out, const Mat4& v)

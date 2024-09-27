@@ -30,7 +30,6 @@ public:
 	Vec3 operator*(const float i);
 
 	//Funzioni
-	float dot(Vec3 v);
 	Vec3 cross(const Vec3& v);
 	float norm();
 	Vec3 getNormalized();
