@@ -7,8 +7,8 @@ class Texture
 {
 public:
 	GLuint ID;
-
-	Texture(std::string filepath, GLint wrapS_p, GLint wrapT_p, GLint Min_p, GLint Mag_p, GLenum format);
+	GLuint unit;
+	Texture(std::string filepath, GLint wrapS_p, GLint wrapT_p, GLint Min_p, GLint Mag_p, GLenum format, GLuint slot);
 
 	void texUnit(Shader& program, const char* uniform, GLenum unit);
 

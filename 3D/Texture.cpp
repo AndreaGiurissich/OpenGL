@@ -2,7 +2,7 @@
 #include <iostream>
 #include "stb_image.h"
 
-Texture::Texture(std::string filepath, GLint wrapS_p, GLint wrapT_p, GLint Min_p, GLint Mag_p, GLenum format)
+Texture::Texture(std::string filepath, GLint wrapS_p, GLint wrapT_p, GLint Min_p, GLint Mag_p, GLenum format, GLuint slot)
 {
 	{
 		int width, height, nrChannels;
@@ -10,7 +10,11 @@ Texture::Texture(std::string filepath, GLint wrapS_p, GLint wrapT_p, GLint Min_p
 		stbi_set_flip_vertically_on_load(true);
 		unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
 
+		// Generates an OpenGL texture object
 		glGenTextures(1, &ID);
+		// Assigns the texture to a Texture Unit
+		glActiveTexture(GL_TEXTURE0 + slot);
+		unit = slot;
 		glBindTexture(GL_TEXTURE_2D, ID);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS_p);
@@ -45,6 +49,7 @@ void Texture::texUnit(Shader& program, const char* uniform, GLuint unit)
 
 void Texture::Bind()
 {
+	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, ID);
 }
 

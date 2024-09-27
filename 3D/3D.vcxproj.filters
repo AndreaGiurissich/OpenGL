@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{5e14762d-a847-4877-9811-46ef665847e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Textures">
+      <UniqueIdentifier>{ff25ae4f-e474-4854-a2d0-7c432c22d646}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -71,33 +77,48 @@
     <ClInclude Include="VBO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mat4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="shaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sbus.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="sbus.frag">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="light.frag">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="light.vert">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="sbus.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="sbus.vert">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess.jpg">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="pavimento_diffuse.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="pavimento_specular.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="wood_floor_diff_4k.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="wood_floor_disp_4k.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="wood_floor_ao_4k.jpg">
+      <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>
 </Project>

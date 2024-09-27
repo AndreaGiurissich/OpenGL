@@ -47,38 +47,18 @@ int main()
 
 	// Vertices coordinates
 	GLfloat vertices[] =
-	{ //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
-		-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-		-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-		 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-		 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-
-		-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-		-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-		 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-
-		-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-		 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-		 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-
-		 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-		 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-		 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
-
-		 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-		-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-		 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
+	{ //     COORDINATES     /        COLORS        /    TexCoord    /       NORMALS     //
+		-1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 0.0f,		0.0f, 1.0f, 0.0f,
+		-1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,		0.0f, 1.0f, 0.0f,
+		 1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 1.0f,		0.0f, 1.0f, 0.0f,
+		 1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 0.0f,		0.0f, 1.0f, 0.0f
 	};
 
 	// Indices for vertices order
 	GLuint indices[] =
 	{
-		0, 1, 2, // Bottom side
-		0, 2, 3, // Bottom side
-		4, 6, 5, // Left side
-		7, 9, 8, // Non-facing side
-		10, 12, 11, // Right side
-		13, 15, 14 // Facing side
+		0, 1, 2,
+		0, 2, 3
 	};
 
 	GLfloat lightVertices[] =
@@ -113,9 +93,6 @@ int main()
 	//Creiamo uno shader program
 	Shader program1 = Shader("sbus.vert", "sbus.frag");
 
-	//Creiamo una texture
-	Texture texture1 = Texture("chess.jpg",GL_REPEAT, GL_REPEAT,GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RGB);
-
 	VAO VAO1 = VAO();
 	VAO1.Bind();
 
@@ -142,27 +119,28 @@ int main()
 	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
 	lightVAO.Unbind();
 	lightVBO.Unbind();
-	lightEBO.Unbind();
 
 	Vec4 lightColor =Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	Vec3 lightPos = Vec3(0.5f, 0.5f, 0.5f);
+	Vec3 lightPos = Vec3(1.0f, 1.0f, 1.0f);
 	Mat4 lightModel =Mat4();
-	lightModel = lightModel.traslazione(lightPos);
+	lightModel = lightModel.translation(lightPos);
 
 	Vec3 pyramidPos = Vec3(0.0f, 0.0f, 0.0f);
 	Mat4 pyramidModel = Mat4();
-	pyramidModel = pyramidModel.traslazione(pyramidPos);
+	pyramidModel = pyramidModel.translation(pyramidPos);
 
 	lightShader.UseProgram();
-	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_TRUE, &lightModel.m[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_TRUE, lightModel.value_ptr());
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	program1.UseProgram();
-	glUniformMatrix4fv(glGetUniformLocation(program1.ID, "model"), 1, GL_TRUE, &pyramidModel.m[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(program1.ID, "model"), 1, GL_TRUE, pyramidModel.value_ptr());
 	glUniform4f(glGetUniformLocation(program1.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(program1.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-	texture1.texUnit(program1, "tex0", 0);
-
+	Texture planksTex("wood_floor_diff_4k.jpg", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RGB, 0);
+	planksTex.texUnit(program1, "tex0", 0);
+	Texture planksSpec("wood_floor_ao_4k.jpg", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RED, 1);
+	planksSpec.texUnit(program1, "tex1", 1);
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
 	// Creates camera object
@@ -182,7 +160,7 @@ int main()
 		// Handles camera inputs
 		camera.inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
+		camera.updateMatrix(90.0f, 0.1f, 100.0f);
 
 
 		// Tells OpenGL which Shader Program we want to use
@@ -192,7 +170,8 @@ int main()
 		// Export the camMatrix to the Vertex Shader of the pyramid
 		camera.Matrix(program1, "camMatrix");
 		// Binds texture so that is appears in rendering
-		texture1.Bind();
+		planksTex.Bind();
+		planksSpec.Bind();
 		// Bind the VAO so OpenGL knows to use it
 		VAO1.Bind();
 		// Draw primitives, number of indices, datatype of indices, index of indices
@@ -222,7 +201,6 @@ int main()
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
-	texture1.Delete();
 	program1.Delete();
 	lightVAO.Delete();
 	lightVBO.Delete();

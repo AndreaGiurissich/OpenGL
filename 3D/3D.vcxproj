@@ -148,6 +148,7 @@
     <ClInclude Include="functions.h" />
     <ClInclude Include="gl.h" />
     <ClInclude Include="GLCommon.h" />
+    <ClInclude Include="shaderClass.h" />
     <ClInclude Include="ShaderLib.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
@@ -162,6 +163,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess.jpg" />
+    <Image Include="pavimento_diffuse.jpg" />
+    <Image Include="pavimento_specular.png" />
+    <Image Include="wood_floor_ao_4k.jpg" />
+    <Image Include="wood_floor_diff_4k.jpg" />
+    <Image Include="wood_floor_disp_4k.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
