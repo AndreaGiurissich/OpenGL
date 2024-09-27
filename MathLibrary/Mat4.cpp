@@ -329,6 +329,15 @@ Mat4 Mat4::traslazione(float x, float y, float z)
 	return *this;
 }
 
+Mat4 Mat4::traslazione(Vec3 v)
+{
+	m[0][3] += v.x;
+	m[1][3] += v.y;
+	m[2][3] += v.z;
+
+	return *this;
+}
+
 Mat4 Mat4::scala(float x, float y, float z)
 {
 	m[0][0] *= x;
