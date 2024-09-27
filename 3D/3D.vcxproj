@@ -164,7 +164,7 @@
   <ItemGroup>
     <Image Include="chess.jpg" />
     <Image Include="pavimento_diffuse.jpg" />
-    <Image Include="pavimento_specular.png" />
+    <Image Include="pavimento_specular.jpg" />
     <Image Include="wood_floor_ao_4k.jpg" />
     <Image Include="wood_floor_diff_4k.jpg" />
     <Image Include="wood_floor_disp_4k.png" />

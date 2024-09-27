@@ -121,7 +121,7 @@ int main()
 	lightVBO.Unbind();
 
 	Vec4 lightColor =Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	Vec3 lightPos = Vec3(1.0f, 1.0f, 1.0f);
+	Vec3 lightPos = Vec3(0.0f, 0.2f, 0.0f);
 	Mat4 lightModel =Mat4();
 	lightModel = lightModel.translation(lightPos);
 
@@ -137,9 +137,9 @@ int main()
 	glUniform4f(glGetUniformLocation(program1.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(program1.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-	Texture planksTex("wood_floor_diff_4k.jpg", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RGB, 0);
+	Texture planksTex("pavimento_diffuse.jpg", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RGB, 0);
 	planksTex.texUnit(program1, "tex0", 0);
-	Texture planksSpec("wood_floor_ao_4k.jpg", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RED, 1);
+	Texture planksSpec("pavimento_specular.jpg", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RED, 1);
 	planksSpec.texUnit(program1, "tex1", 1);
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);

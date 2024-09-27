@@ -108,9 +108,6 @@
     <Image Include="pavimento_diffuse.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="pavimento_specular.png">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
     <Image Include="wood_floor_diff_4k.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
@@ -118,6 +115,9 @@
       <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="wood_floor_ao_4k.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="pavimento_specular.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>
