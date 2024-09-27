@@ -104,13 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)depend\GLFW\include;$(SolutionDir)MathLibrary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)depend\assimp\include;$(SolutionDir)depend\GLFW\include;$(SolutionDir)MathLibrary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)depend\GLFW\lib-vc2022;C:\Dev\OpenGL\OpenGL\depend\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);$(SolutionDir)depend\GLFW\lib-vc2022\glfw3.lib;$(SolutionDir)depend\lib\MathLibrary.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)depend\assimp\lib;$(SolutionDir)depend\GLFW\lib-vc2022;C:\Dev\OpenGL\OpenGL\depend\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);$(SolutionDir)depend\GLFW\lib-vc2022\glfw3.lib;$(SolutionDir)depend\lib\MathLibrary.lib;$(SolutionDir)depend\assimp\lib\x64\assimp-vc143-mt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -137,6 +137,7 @@
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -148,6 +149,8 @@
     <ClInclude Include="functions.h" />
     <ClInclude Include="gl.h" />
     <ClInclude Include="GLCommon.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="shaderClass.h" />
     <ClInclude Include="ShaderLib.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
@@ -162,6 +165,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess.jpg" />
+    <Image Include="pavimento_diffuse.jpg" />
+    <Image Include="pavimento_specular.png" />
+    <Image Include="wood_floor_ao_4k.jpg" />
+    <Image Include="wood_floor_diff_4k.jpg" />
+    <Image Include="wood_floor_disp_4k.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

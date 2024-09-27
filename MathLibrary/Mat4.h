@@ -40,17 +40,17 @@ public:
 
 	float det();
 	Mat4 tras();
+	Mat4 translation(Vec3 d);
+	const float* value_ptr() const;
 	Mat4 inversa();
 
-	Mat4 traslazione(float x, float y, float z);
-	Mat4 traslazione(Vec3 v);
-	Mat4 scala(float x, float y, float z);
-	Mat4 rotazioneX(float angolo);
-	Mat4 rotazioneY(float angolo);
-	Mat4 rotazioneZ(float angolo);
-	Mat4 persp(float fovy, float width, float height, float near, float far);
 
+	Mat4 scale(Vec3 s);
+	Mat4 rotation(float degrees, Vec3 axis);
+	Mat4 perspective(float fov, float aspect, float near, float far);
+	Mat4 orthographic(float fov, float aspect, float near, float far);
 	Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up);
+	Mat4 lookAtCubemap(Vec3 eye, Vec3 target, Vec3 up);
 
 	//stampa
 	friend ostream& operator<<(ostream& out, const Mat4& v);
