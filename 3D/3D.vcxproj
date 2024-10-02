@@ -137,6 +137,7 @@
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VAO.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="functions.h" />
     <ClInclude Include="gl.h" />
     <ClInclude Include="GLCommon.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="shaderClass.h" />
     <ClInclude Include="ShaderLib.h" />
     <ClInclude Include="stb_image.h" />

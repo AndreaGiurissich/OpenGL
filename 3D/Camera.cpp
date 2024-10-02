@@ -103,7 +103,7 @@ void Camera::inputs(GLFWwindow* window)
 		if (abs(newOrientation.angle(Up) - 90.0f) <= 85.0f)
 		{
 			Orientation = newOrientation;
-			std::cout << Orientation.angle(Up) << std::endl;
+			/*std::cout << Orientation.angle(Up) << std::endl;*/
 			
 		}
 		

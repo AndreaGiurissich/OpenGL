@@ -2,13 +2,15 @@
 #include <iostream>
 #include "stb_image.h"
 
-Texture::Texture(std::string filepath, GLint wrapS_p, GLint wrapT_p, GLint Min_p, GLint Mag_p, GLenum format, GLuint slot)
+Texture::Texture(std::string image, const char* texType, GLint wrapS_p, GLint wrapT_p, GLint Min_p, GLint Mag_p, GLenum format, GLuint slot)
 {
 	{
-		int width, height, nrChannels;
+		type = texType;
+		
+		int width, height, numChannels;
 
 		stbi_set_flip_vertically_on_load(true);
-		unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
+		unsigned char* bytes = stbi_load(image.c_str(), &width, &height, &numChannels, 0);
 
 		// Generates an OpenGL texture object
 		glGenTextures(1, &ID);
@@ -17,22 +19,19 @@ Texture::Texture(std::string filepath, GLint wrapS_p, GLint wrapT_p, GLint Min_p
 		unit = slot;
 		glBindTexture(GL_TEXTURE_2D, ID);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS_p);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT_p);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Min_p);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Mag_p);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS_p);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT_p);
 
-		if (!data)
-		{
-			std::cout << "Failed to load texture" << std::endl;
-		}
-		else
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, bytes);
+		// Generates MipMaps
+		glGenerateMipmap(GL_TEXTURE_2D);
 
-		stbi_image_free(data);
+		// Unbinds the OpenGL Texture object so that it can't accidentally be modified
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		stbi_image_free(bytes);
 
 	}
 }
