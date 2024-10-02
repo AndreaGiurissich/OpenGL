@@ -19,17 +19,14 @@ Texture::Texture(std::string image, const char* texType, GLint wrapS_p, GLint wr
 		unit = slot;
 		glBindTexture(GL_TEXTURE_2D, ID);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Min_p);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Mag_p);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS_p);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT_p);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Min_p);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Mag_p);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, bytes);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, bytes);
 		// Generates MipMaps
 		glGenerateMipmap(GL_TEXTURE_2D);
-
-		// Unbinds the OpenGL Texture object so that it can't accidentally be modified
-		glBindTexture(GL_TEXTURE_2D, 0);
 
 		stbi_image_free(bytes);
 

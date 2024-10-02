@@ -80,18 +80,14 @@ int main()
 	int version = gladLoadGL(glfwGetProcAddress);
 	printf("GL %d %d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
-	
-
-
-	//Creiamo uno shader program
-	Shader shaderProgram = Shader("sbus.vert", "sbus.frag");
-
 	Texture textures[]
 	{
 		Texture("wood_floor_diff_4k.jpg", "diffuse", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RGB, 0),
-		Texture("wood_floor_ao_4k.png", "specular", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RED, 1)
+		Texture("wood_floor_disp_4k.png", "specular", GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_RED, 1)
 	};
 
+	//Creiamo uno shader program
+	Shader shaderProgram = Shader("sbus.vert", "sbus.frag");
 
 	// Store mesh data in vectors for the mesh
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
@@ -146,7 +142,7 @@ int main()
 		// Handles camera inputs
 		camera.inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
-		camera.updateMatrix(90.0f, 0.1f, 100.0f);
+		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
 
 		// Draws different meshes
