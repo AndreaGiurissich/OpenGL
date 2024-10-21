@@ -1,10 +1,20 @@
 #include "Mesh.h"
 
+
 Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures)
 {
-	Mesh::vertices = vertices;
-	Mesh::indices = indices;
-	Mesh::textures = textures;
+	this->vertices = vertices;
+	this->indices = indices;
+	this->textures = textures;
+
+	setupMesh();
+	
+}
+
+void Mesh::setupMesh()
+{
+	
+	
 
 	VAO.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
@@ -22,34 +32,72 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::v
 	EBO.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, Camera& camera)
+void Mesh::Draw(Shader& shader)
 {
-	shader.UseProgram();
-	VAO.Bind();
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+	unsigned int normalNr = 1;
 
-	unsigned int numDiffuse = 0;
-	unsigned int numSpecular = 0;
 
-	for(unsigned int i = 0; i < textures.size(); i++)
+	for (unsigned int i = 0; i < textures.size(); i++)
 	{
-		std::string num;
-		std::string type = textures[i].type;
-		if(type == "diffuse")
-		{
-			num = std::to_string(numDiffuse++);
-		}
-		else if(type == "specular")
-		{
-			num = std::to_string(numSpecular++);
-		}
-		textures[i].texUnit(shader, (type + num).c_str(), i);
-		textures[i].Bind();
+		glActiveTexture(GL_TEXTURE0 + i);
+		string number;
+		string name = textures[i].type;
+
+		if (name == "texture_diffuse")
+			number = std::to_string(diffuseNr++);
+		else if (name == "texture_specular")
+			number = std::to_string(specularNr++);
+		else if (name == "texture_normal")
+			number = std::to_string(normalNr++);
+
+		int TextUniformLoc = glGetUniformLocation(shader.ID, (name + number).c_str());
+
+		glUniform1i(TextUniformLoc, i);
+		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
 	}
-	// Take care of the camera Matrix
-	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-	camera.Matrix(shader, "camMatrix");
 
-	// Draw the actual mesh
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
+	// disegno mesh
+	VAO.Bind();
+	glDrawElements(GL_TRIANGLES, static_cast<GLuint>(indices.size()), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	//reset texture attiva
+	glActiveTexture(GL_TEXTURE0);
 }
+
+
+//
+//void Mesh::Draw(Shader& shader)
+//{
+//	shader.UseProgram();
+//	VAO.Bind();
+//
+//	unsigned int numDiffuse = 1;
+//	unsigned int numSpecular = 1;
+//
+//	for(unsigned int i = 0; i < textures.size(); i++)
+//	{
+//		std::string num;
+//		std::string type = textures[i].type;
+//		if(type == "diffuse")
+//		{
+//			num = std::to_string(numDiffuse++);
+//		}
+//		else if(type == "specular")
+//		{
+//			num = std::to_string(numSpecular++);
+//		}
+//		int TextUniformLoc = glGetUniformLocation(shader.ID, (type + num).c_str());
+//
+//		glUniform1i(TextUniformLoc, i);
+//		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
+//	}
+//	
+//
+//	// Draw the actual mesh
+//	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+//
+//}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Root>
+	<window>
+		<width>1080</width>
+		<height>720</height>
+	</window>
+	<model>
+		<name>backpack</name>
+		<path>models/backpack/backpack.obj</path>
+		<stencil>outMask</stencil>
+
+		<translatex>0</translatex>
+		<translatey>0</translatey>
+		<translatez>0</translatez>
+
+		<scalex>1</scalex>
+		<scaley>1</scaley>
+		<scalez>1</scalez>
+
+		<gradi>90.0</gradi>
+		<rotatex>1.0</rotatex>
+		<rotatey>0.0</rotatey>
+		<rotatez>0.0</rotatez>
+	</model>
+
+	<model>
+		<name>backpack</name>
+		<path>models/backpack/backpack.obj</path>
+		<stencil>outMask</stencil>
+
+		<translatex>2.0</translatex>
+		<translatey>4.0</translatey>
+		<translatez>1.0</translatez>
+
+		<scalex>1</scalex>
+		<scaley>1</scaley>
+		<scalez>1</scalez>
+
+		<gradi>0.0</gradi>
+		<rotatex>0.0</rotatex>
+		<rotatey>0.0</rotatey>
+		<rotatez>0.0</rotatez>
+	</model>
+</Root>
