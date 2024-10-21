@@ -19,6 +19,12 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{ff25ae4f-e474-4854-a2d0-7c432c22d646}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\XML">
+      <UniqueIdentifier>{7a3f0e17-0b41-402e-aa2b-392dcd9d4044}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\models">
+      <UniqueIdentifier>{2be27501-3c56-48cb-8347-eea09170dc1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -36,13 +42,19 @@
     <ClCompile Include="shaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="Textures.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,7 +80,7 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="Textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VAO.h">
@@ -85,6 +97,27 @@
     </ClInclude>
     <ClInclude Include="shaderClass.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml.hpp">
+      <Filter>Header Files\XML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_iterators.hpp">
+      <Filter>Header Files\XML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_print.hpp">
+      <Filter>Header Files\XML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_utils.hpp">
+      <Filter>Header Files\XML</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +141,9 @@
     <Image Include="pavimento_diffuse.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+    <Image Include="pavimento_specular.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
     <Image Include="wood_floor_diff_4k.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
@@ -117,8 +153,8 @@
     <Image Include="wood_floor_ao_4k.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="pavimento_specular.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="configurazione.xml" />
   </ItemGroup>
 </Project>

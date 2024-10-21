@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Root>
+	<window>
+		<width>1280</width>
+		<height>720</height>
+	</window>
+	<model>
+		<name>backpack</name>
+		<path>models/backpack/backpack.obj</path>
+		<stencil>outMask</stencil>
+
+		<translatex>0</translatex>
+		<translatey>0</translatey>
+		<translatez>0</translatez>
+
+		<scalex>0.01</scalex>
+		<scaley>0.01</scaley>
+		<scalez>0.01</scalez>
+
+		<gradi>0.0</gradi>
+		<rotatex>0.0</rotatex>
+		<rotatey>0.0</rotatey>
+		<rotatez>0.0</rotatez>
+	</model>
+</Root>

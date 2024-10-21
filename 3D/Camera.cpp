@@ -62,7 +62,7 @@ void Camera::inputs(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
-		speed = 0.4f;
+		speed = 0.04f;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 	{
@@ -103,8 +103,6 @@ void Camera::inputs(GLFWwindow* window)
 		if (abs(newOrientation.angle(Up) - 90.0f) <= 85.0f)
 		{
 			Orientation = newOrientation;
-			std::cout << Orientation.angle(Up) << std::endl;
-			
 		}
 		
 		// Rotates the Orientation left and right
