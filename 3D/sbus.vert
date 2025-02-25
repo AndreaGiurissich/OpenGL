@@ -2,10 +2,13 @@
 
 //positions/coordinates
 layout (location = 0) in vec3 aPos;
-// Texture Coordinates
-layout (location = 2) in vec2 aTexCoords;
 //normal coordinates
 layout (location = 1) in vec3 aNormal;
+//Bitangent coordinates
+layout (location = 2) in vec3 aTangent;
+// Texture Coordinates
+layout (location = 3) in vec2 aTexCoords;
+
 
 // Outputs the texture coordinates to the fragment shader
 out vec2 TexCoords;

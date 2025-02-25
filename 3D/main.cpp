@@ -16,7 +16,7 @@
 
 
 //caricamento modelli 3d
-void modelsLoading(float modelsDimension, rapidxml::xml_node<>* root_node, /*string stencil,*/ Shader shaderProgram, vector<Mat4>& modelsMat, vector<Model>& models)
+void modelsLoading(rapidxml::xml_node<>* root_node, /*string stencil,*/ Shader shaderProgram, vector<Mat4>& modelsMat, vector<Model>& models)
 {
 	int modelCount = 0;
 	for (rapidxml::xml_node<>* model_node = root_node->first_node("model"); model_node; model_node = model_node->next_sibling("model"))
@@ -99,7 +99,7 @@ int main()
 
 	for (rapidxml::xml_node<>* model_node = root_node->first_node("model"); model_node; model_node = model_node->next_sibling("model"))
 	{
-		models[modelsCount] = Model((model_node->first_node("path")->value()), false);
+		models[modelsCount] = Model((model_node->first_node("path")->value()), model_node->first_node("stencil")->value());
 
 		cout << "obj" << modelsCount << endl << model_node->first_node("path")->value() << endl;
 
@@ -169,7 +169,7 @@ int main()
 
 		//glStencilMask(0xFF); 
 
-		modelsLoading(modelsDimension, root_node, program1, modelsMat, models);
+		modelsLoading(root_node, program1, modelsMat, models);
 
 		//glStencilFunc(GL_EQUAL, 1, 0x00);
 

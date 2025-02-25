@@ -8,7 +8,7 @@
 	<model>
 		<name>backpack</name>
 		<path>models/backpack/backpack.obj</path>
-		<stencil>outMask</stencil>
+		<stencil>false</stencil>
 
 		<translatex>0</translatex>
 		<translatey>0</translatey>
@@ -18,24 +18,24 @@
 		<scaley>1</scaley>
 		<scalez>1</scalez>
 
-		<gradi>90.0</gradi>
-		<rotatex>1.0</rotatex>
+		<gradi>0.0</gradi>
+		<rotatex>0.0</rotatex>
 		<rotatey>0.0</rotatey>
 		<rotatez>0.0</rotatez>
 	</model>
 
 	<model>
-		<name>backpack</name>
-		<path>models/backpack/backpack.obj</path>
-		<stencil>outMask</stencil>
+		<name>amongus</name>
+		<path>models/amongus/among us.obj</path>
+		<stencil>true</stencil>
 
-		<translatex>2.0</translatex>
-		<translatey>4.0</translatey>
-		<translatez>1.0</translatez>
+		<translatex>0.0</translatex>
+		<translatey>0.0</translatey>
+		<translatez>0.0</translatez>
 
-		<scalex>1</scalex>
-		<scaley>1</scaley>
-		<scalez>1</scalez>
+		<scalex>0.1</scalex>
+		<scaley>0.1</scaley>
+		<scalez>0.1</scalez>
 
 		<gradi>0.0</gradi>
 		<rotatex>0.0</rotatex>

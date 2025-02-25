@@ -20,9 +20,12 @@ public:
 
     Model() {}
 
-    Model(string const& path, bool invertUV, bool gamma = false) : gammaCorrection(gamma)
+    Model(string const& path, string invertUV, bool gamma = false) : gammaCorrection(gamma)
     {
-        loadModel(path, invertUV);
+        if(invertUV == "false")
+    		loadModel(path, false);
+        else 
+            loadModel(path, true);
     }
 
     void Draw(Shader& shader);

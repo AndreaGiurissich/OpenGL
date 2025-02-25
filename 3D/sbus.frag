@@ -104,5 +104,5 @@ void main()
 {
 	// outputs final color
 	//FragColor = direcLight() * (1.0f - depth) + vec4(depth * vec3(0.85f, 0.85f, 0.90f), 1.0f);
-	FragColor = pointLight();
+	FragColor = direcLight();
 }
