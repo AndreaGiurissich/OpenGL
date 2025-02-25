@@ -32,6 +32,8 @@ void modelsLoading(rapidxml::xml_node<>* root_node, /*string stencil,*/ Shader s
 	}
 }
 
+//cacca pupu
+
 int main()
 	{
 	// Crea un documento RapidXML
