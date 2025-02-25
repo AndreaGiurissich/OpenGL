@@ -32,6 +32,8 @@ void modelsLoading(float modelsDimension, rapidxml::xml_node<>* root_node, /*str
 	}
 }
 
+//cacca pupu
+
 int main()
 	{
 	// Crea un documento RapidXML
