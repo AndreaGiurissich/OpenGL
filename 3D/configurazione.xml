@@ -5,10 +5,12 @@
 		<width>1080</width>
 		<height>720</height>
 	</window>
-	<model>
+	
+	<model id="A">
+		
 		<name>backpack</name>
 		<path>models/backpack/backpack.obj</path>
-		<stencil>false</stencil>
+		<flipUVs>false</flipUVs>
 
 		<translatex>0</translatex>
 		<translatey>0</translatey>
@@ -24,22 +26,25 @@
 		<rotatez>0.0</rotatez>
 	</model>
 
-	<model>
-		<name>amongus</name>
-		<path>models/amongus/among us.obj</path>
-		<stencil>true</stencil>
+	<model id="B">
 
-		<translatex>0.0</translatex>
-		<translatey>0.0</translatey>
-		<translatez>0.0</translatez>
+		<name>f16</name>
+		<path>models/f16/f16.obj</path>
+		<flipUVs>true</flipUVs>
 
-		<scalex>0.1</scalex>
-		<scaley>0.1</scaley>
-		<scalez>0.1</scalez>
+		<translatex>0</translatex>
+		<translatey>0</translatey>
+		<translatez>-5</translatez>
+
+		<scalex>1</scalex>
+		<scaley>1</scaley>
+		<scalez>1</scalez>
 
 		<gradi>0.0</gradi>
 		<rotatex>0.0</rotatex>
 		<rotatey>0.0</rotatey>
 		<rotatez>0.0</rotatez>
 	</model>
+
+
 </Root>

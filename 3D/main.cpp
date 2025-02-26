@@ -4,6 +4,8 @@
 #include "stb_image.h"
 #include "GLCommon.h"
 
+#include <map>
+
 #include <assimp/Importer.hpp>
 #include "rapidxml.hpp"
 #include "rapidxml_iterators.hpp"
@@ -16,19 +18,14 @@
 
 
 //caricamento modelli 3d
-void modelsLoading(rapidxml::xml_node<>* root_node, /*string stencil,*/ Shader shaderProgram, vector<Mat4>& modelsMat, vector<Model>& models)
+void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances)
 {
-	int modelCount = 0;
-	for (rapidxml::xml_node<>* model_node = root_node->first_node("model"); model_node; model_node = model_node->next_sibling("model"))
-	{
-		//if (stencil == model_node->first_node("stencil")->value()) // caricamento dei modelli a seconda del parametro stencil tramite xml
-		//{
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_TRUE, modelsMat[modelCount].value_ptr());
+	for (const auto& instance : instances) {
+		int modelIndex = instance.first;
+		const Mat4& modelMatrix = instance.second;
 
-			models[modelCount].Draw(shaderProgram);
-
-			modelCount++;
-
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_TRUE, modelMatrix.value_ptr());
+		uniqueModels[modelIndex].Draw(shaderProgram);
 	}
 }
 
@@ -79,45 +76,44 @@ int main()
 	//glDepthFunc(GL_LESS);
 	//glEnable(GL_STENCIL_TEST);
 
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
-	
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 
-
-	//Modelli da XML
-
-	int modelsDimension = 0;
-	for (rapidxml::xml_node<>* model_node = root_node->first_node("model"); model_node; model_node = model_node->next_sibling("model"))
-	{
-		modelsDimension++;
-		printf("%d\n", modelsDimension);
-	}
-
-	vector<Model> models(modelsDimension);
-	vector<Mat4> modelsMat(modelsDimension);
-
-	int modelsCount = 0;
+	// Structures to hold unique models and instances
+	std::vector<Model> uniqueModels; //Contiene solo i modelli unici
+	std::map<std::string, int> modelPathMap; // Dizionario per mappare i path dei modelli con i loro indici (nel vettore uniqueModels)
+	std::vector<std::pair<int, Mat4>> instances; // Stora le istanze dei modelli in un paio ([indice in uniqueModels, Mat trasform dell'istanza])
 
 	for (rapidxml::xml_node<>* model_node = root_node->first_node("model"); model_node; model_node = model_node->next_sibling("model"))
 	{
-		models[modelsCount] = Model((model_node->first_node("path")->value()), model_node->first_node("stencil")->value());
+		std::string path = model_node->first_node("path")->value();
+		auto it = modelPathMap.find(path);
+		int modelIndex;
 
-		cout << "obj" << modelsCount << endl << model_node->first_node("path")->value() << endl;
+		if (it != modelPathMap.end()) {
+			// Modello già caricato usa indice esistente
+			modelIndex = it->second;
+		}
+		else {
+			// Carica nuovo modello e storalo in uniqueModels
+			Model newModel(path, model_node->first_node("flipUVs")->value());
+			uniqueModels.push_back(newModel);
+			modelIndex = uniqueModels.size() - 1;
+			modelPathMap[path] = modelIndex;
+		}
 
+		// Compute model matrix
 		Mat4 model = Mat4();
 
-		//translate da xml
 		float tx = stof(model_node->first_node("translatex")->value());
 		float ty = stof(model_node->first_node("translatey")->value());
 		float tz = stof(model_node->first_node("translatez")->value());
 
-		//scale da xml
 		float sx = stof(model_node->first_node("scalex")->value());
 		float sy = stof(model_node->first_node("scaley")->value());
 		float sz = stof(model_node->first_node("scalez")->value());
 
-		//rotation da xml
 		float gradi = stof(model_node->first_node("gradi")->value());
 		float rx = stof(model_node->first_node("rotatex")->value());
 		float ry = stof(model_node->first_node("rotatey")->value());
@@ -127,11 +123,10 @@ int main()
 		model = model.scale(Vec3(sx, sy, sz));
 		model = model.rotation(gradi, Vec3(rx, ry, rz));
 
-		std::cout << model << std::endl;
-
-		modelsMat[modelsCount] = model;
-		modelsCount++;
+		// Stora la coppia indice modello e matrice trasformazione
+		instances.emplace_back(modelIndex, model);
 	}
+
 
 	//Creiamo uno shader program
 	Shader program1 = Shader("sbus.vert", "sbus.frag");
@@ -148,10 +143,40 @@ int main()
 
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// Variables to create periodic event for FPS displaying
+	double prevTime = 0.0;
+	double crntTime = 0.0;
+	double timeDiff;
+	// Keeps track of the amount of frames in timeDiff
+	unsigned int counter = 0;
+
 	glfwSwapInterval(1);
 	//Ciclo di rendering
 	while (!glfwWindowShouldClose(window))
 	{
+
+		// Updates counter and times
+		crntTime = glfwGetTime();
+		timeDiff = crntTime - prevTime;
+		counter++;
+
+		if (timeDiff >= 1.0 / 30.0)
+		{
+			// Creates new title
+			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+			std::string ms = std::to_string((timeDiff / counter) * 1000);
+			std::string newTitle = "POG - " + FPS + "FPS / " + ms + "ms";
+			glfwSetWindowTitle(window, newTitle.c_str());
+
+			// Resets times and counter
+			prevTime = crntTime;
+			counter = 0;
+
+			// Use this if you have disabled VSync
+			//camera.inputs(window);
+		}
+
 		glClearColor(0.25f, 0.25f, 0.50f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glStencilFunc(GL_NEVER, 1, 0xFF);
@@ -171,7 +196,8 @@ int main()
 
 		//glStencilMask(0xFF); 
 
-		modelsLoading(root_node, program1, modelsMat, models);
+		modelsLoading(program1, uniqueModels, instances);
+
 
 		//glStencilFunc(GL_EQUAL, 1, 0x00);
 
@@ -190,3 +216,4 @@ int main()
 	glfwTerminate();
 	return 0;
 }
+
