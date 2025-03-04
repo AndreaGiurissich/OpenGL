@@ -133,6 +133,18 @@
     <None Include="sbus.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="shadowMap.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="shadowMap.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="debug.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="debug.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess.jpg">

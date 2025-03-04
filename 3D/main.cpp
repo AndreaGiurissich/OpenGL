@@ -16,20 +16,25 @@
 #include "Mesh.h"
 #include "Model.h"
 
+// -------------------------- DEBUG QUAD SETUP --------------------------
+float quadVertices[] = {
+	// positions        // texCoords
+	-1.0f,  1.0f,      0.0f, 1.0f,
+	-1.0f, -1.0f,      0.0f, 0.0f,
+	 1.0f, -1.0f,      1.0f, 0.0f,
+
+	-1.0f,  1.0f,      0.0f, 1.0f,
+	 1.0f, -1.0f,      1.0f, 0.0f,
+	 1.0f,  1.0f,      1.0f, 1.0f
+};
+
+
 
 //caricamento modelli 3d
-void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances)
-{
-	for (const auto& instance : instances) {
-		int modelIndex = instance.first;
-		const Mat4& modelMatrix = instance.second;
+void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances);
 
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_TRUE, modelMatrix.value_ptr());
-		uniqueModels[modelIndex].Draw(shaderProgram);
-	}
-}
-
-//cacca pupu
+void renderCube();
+void renderQuad();
 
 int main()
 	{
@@ -49,7 +54,7 @@ int main()
 	const unsigned int SCR_WIDTH = atoi(root_node->first_node("window")->first_node("width")->value());
 	const unsigned int SCR_HEIGHT = atoi(root_node->first_node("window")->first_node("height")->value());
 
-	Camera camera(SCR_WIDTH, SCR_HEIGHT, Vec3(0.0f, 3.0f, 0.0f));
+	Camera camera(SCR_WIDTH, SCR_HEIGHT, Vec3(1.0f, 0.0f, 0.0f));
 
 	//-----------------------------AVVIO-----------------------------
 	glfwInit(); //avvia glfw
@@ -132,8 +137,8 @@ int main()
 	Shader program1 = Shader("sbus.vert", "sbus.frag");
 
 
-	Vec4 lightColor =Vec4(0.0f, 0.0f, 1.0f, 1.0f);
-	Vec3 lightPos = Vec3(0.0f, 10.0f, 0.0f);
+	Vec4 lightColor =Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	Vec3 lightPos = Vec3(-2.0f, 4.0f, -1.0f);
 
 	program1.UseProgram();
 	int shaderUniformLoc5 = glGetUniformLocation(program1.ID, "lightPos");
@@ -141,6 +146,61 @@ int main()
 	int shaderUniformLoc6 = glGetUniformLocation(program1.ID, "lightColor");
 	glUniform4f(shaderUniformLoc6, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
+
+	 //---------------------------SHADOWMAPS-------------------------------------//
+
+	//create a framebuffer object for rendering the depth map:
+	GLuint depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+
+	//create a 2D texture that we'll use as the framebuffer's depth buffer:
+	unsigned int shadowWidth = 2048, shadowHeight = 2048;
+
+	GLuint depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	float clampColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+
+	//attach the texture as the framebuffer's depth buffer:
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	Mat4 ortho = Mat4().ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 7.5f);
+	std::cout << ortho << std::endl;
+	//std::cout << ortoProjection << std::endl;
+
+	Mat4 lightView = Mat4().lookAt( lightPos , Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
+	std::cout << lightView << std::endl;
+	Mat4 lightProjection = ortho.tras() * lightView;
+
+	std::cout << lightProjection << std::endl;
+
+	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
+
+
+	unsigned int quadVAO, quadVBO;
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+
+	//-------------------------------------------------------------------------//
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -187,16 +247,51 @@ int main()
 		camera.inputs(window);
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
+
+		glEnable(GL_DEPTH_TEST);
+		shadowMapProgram.UseProgram();
+
+		GLuint lightProjectionLoc = glGetUniformLocation(shadowMapProgram.ID, "lightProjection");
+		glUniformMatrix4fv(lightProjectionLoc, 1, GL_FALSE, lightProjection.value_ptr());
+		// Set lightProjection matrix each frame (in case it changes)
+
+
+		glViewport(0, 0, shadowWidth, shadowHeight);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		
+
+		// Render all instances with their model matrices
+		for (const auto& instance : instances) {
+			int modelIndex = instance.first;
+			const Mat4& modelMatrix = instance.second;
+			glUniformMatrix4fv(glGetUniformLocation(shadowMapProgram.ID, "model"), 1, GL_TRUE, modelMatrix.value_ptr());
+			uniqueModels[modelIndex].Draw(shadowMapProgram);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); // Reset viewport for main rendering
+
+
 		program1.UseProgram(); //quale shaderprogram usare
+
+		glUniformMatrix4fv(glGetUniformLocation(program1.ID, "lightProjection"), 1, GL_FALSE, lightProjection.value_ptr());
+
+		// Bind the Shadow Map
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glUniform1i(glGetUniformLocation(program1.ID, "shadowMap"), 3);
 
 		int shaderUniformLoc4 = glGetUniformLocation(program1.ID, "camPos");
 		glUniform3f(shaderUniformLoc4, camera.Position.x, camera.Position.y, camera.Position.z);
-		
-		camera.Matrix(program1, "camMatrix");
 
-		//glStencilMask(0xFF); 
+		camera.Matrix(program1, "camMatrix");
+	
+		////glStencilMask(0xFF); 
 
 		modelsLoading(program1, uniqueModels, instances);
+
 
 
 		//glStencilFunc(GL_EQUAL, 1, 0x00);
@@ -215,5 +310,16 @@ int main()
 	// Terminate GLFW before ending the program
 	glfwTerminate();
 	return 0;
+}
+
+void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances)
+{
+	for (const auto& instance : instances) {
+		int modelIndex = instance.first;
+		const Mat4& modelMatrix = instance.second;
+
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_TRUE, modelMatrix.value_ptr());
+		uniqueModels[modelIndex].Draw(shaderProgram);
+	}
 }
 

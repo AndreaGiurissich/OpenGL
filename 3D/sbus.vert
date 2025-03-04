@@ -15,22 +15,24 @@ out vec2 TexCoords;
 
 out vec3 Normal;
 out vec3 crntPos;
-
+out vec4 fragPosLight;
 
 uniform mat4 camMatrix;
 uniform mat4 model;
-
+uniform mat4 lightProjection;
 
 void main()
 {
 	crntPos = vec3(model * vec4(aPos, 1.0f));
 
 	
-	//gl_Position = matrix * model * vec4(aPos, 1.0);
+
 	//assegna colori da vertex data a color
 	// Assigns the texture coordinates from the Vertex Data to "texCoord"
 	TexCoords = aTexCoords; 
-
+	
+	fragPosLight = lightProjection * vec4(crntPos, 1.0f);
+	
 	Normal = aNormal;
 	gl_Position = camMatrix * vec4(crntPos, 1.0);
 }

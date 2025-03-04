@@ -265,6 +265,24 @@ Mat4 Mat4::tras()
 			 m[0][3], m[1][3], m[2][3], m[3][3] };
 }
 
+void Mat4::normalize() {
+	// For each column in the matrix
+	for (int j = 0; j < 4; ++j) {
+		// Calculate the Euclidean norm of the column
+		float norm = std::sqrt(m[0][j] * m[0][j] +
+			m[1][j] * m[1][j] +
+			m[2][j] * m[2][j] +
+			m[3][j] * m[3][j]);
+		// Avoid division by zero
+		if (norm > 0.0f) {
+			// Normalize each element in the column
+			for (int i = 0; i < 4; ++i) {
+				m[i][j] /= norm;
+			}
+		}
+	}
+}
+
 
 //traslazione
 Mat4 Mat4::translation(Vec3 d) {
@@ -375,6 +393,20 @@ Mat4 Mat4::orthographic(float fov, float aspect, float near, float far) {
 	return *this * result;
 }
 
+Mat4 Mat4::ortho(float left, float right, float bottom, float top, float near, float far) {
+	Mat4 result;
+
+	result.m[0][0] = 2.0f / (right - left);
+	result.m[1][1] = 2.0f / (top - bottom);
+	result.m[2][2] = -2.0f / (far - near);
+	result.m[3][0] = -(right + left) / (right - left);
+	result.m[3][1] = -(top + bottom) / (top - bottom);
+	result.m[3][2] = -(far + near) / (far - near);
+	result.m[3][3] = 1.0f;
+
+	return result;
+}
+
 //LookAt
 Mat4 Mat4::lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 	Vec3 forward = (eye - center).normalize();
@@ -473,7 +505,7 @@ ostream& operator<<(ostream& out, const Mat4& v)
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			out << " "<< v.m[i][j] << " s";
+			out << " "<< v.m[i][j] << " ";
 		}
 		out << "\n";
 	}

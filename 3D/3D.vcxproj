@@ -165,10 +165,14 @@
     <ClInclude Include="VBO.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="debug.frag" />
+    <None Include="debug.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
     <None Include="sbus.frag" />
     <None Include="sbus.vert" />
+    <None Include="shadowMap.frag" />
+    <None Include="shadowMap.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess.jpg" />

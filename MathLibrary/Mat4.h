@@ -40,6 +40,7 @@ public:
 
 	float det();
 	Mat4 tras();
+	void normalize();
 	Mat4 translation(Vec3 d);
 	const float* value_ptr() const;
 	Mat4 inversa();
@@ -49,6 +50,7 @@ public:
 	Mat4 rotation(float degrees, Vec3 axis);
 	Mat4 perspective(float fov, float aspect, float near, float far);
 	Mat4 orthographic(float fov, float aspect, float near, float far);
+	Mat4 ortho(float left, float right, float bottom, float top, float near, float far);
 	Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up);
 	Mat4 lookAtCubemap(Vec3 eye, Vec3 target, Vec3 up);
 

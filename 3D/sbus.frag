@@ -7,10 +7,12 @@ in vec2 TexCoords;
 in vec3 Normal;
 in vec3 crntPos;
 
+in vec4 fragPosLight;
+
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
-
+uniform sampler2D shadowMap;
 
 uniform vec4 lightColor;
 uniform vec3 lightPos;
@@ -48,6 +50,33 @@ vec4 pointLight()
 	return (texture(texture_diffuse1, TexCoords) * (diffuse * inten + ambient) + texture(texture_specular1, TexCoords).r * specular * inten) ;
 }
 
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+	vec3 lightVec = lightPos - crntPos;
+	vec3 lightDirection = normalize(lightVec);
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+	// PCF with 3x3 kernel
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += (currentDepth - 0.005) > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+	return shadow /= 9.0;
+}  
+
 vec4 direcLight()
 {
 	//ambient lighting
@@ -65,7 +94,7 @@ vec4 direcLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(texture_diffuse1, TexCoords) * (diffuse + ambient) + texture(texture_specular1, TexCoords).r * specular);
+	return (texture(texture_diffuse1, TexCoords) * (diffuse * (1.0f - ShadowCalculation(fragPosLight)) + ambient) + texture(texture_specular1, TexCoords).r * specular * (1.0f - ShadowCalculation(fragPosLight)));
 }
 
 vec4 spotLight()
