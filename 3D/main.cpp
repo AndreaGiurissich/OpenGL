@@ -19,6 +19,8 @@
 
 //caricamento modelli 3d
 void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances);
+void drawFrustum(Mat4 projectionViewMatrix, const Vec4& color, Shader& shader);
+
 
 int main()
 	{
@@ -122,7 +124,7 @@ int main()
 
 
 	Vec4 lightColor =Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	Vec3 lightPos = Vec3(-2.0f, 4.0f, -1.0f);
+	Vec3 lightPos = Vec3(0.0f, 1.0f, 0.0001f); // Very slight offset
 
 	program1.UseProgram();
 	int shaderUniformLoc5 = glGetUniformLocation(program1.ID, "lightPos");
@@ -171,7 +173,7 @@ int main()
 
 	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
 
-
+	Shader frustumShader = Shader("frustum.vert", "frustum.frag");
 	
 
 
@@ -267,7 +269,11 @@ int main()
 
 		modelsLoading(program1, uniqueModels, instances);
 
-
+		// Draw the light's view frustum (shadow map)
+		frustumShader.UseProgram();
+		camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
+		Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
+		drawFrustum(lightProjection, lightFrustumColor, frustumShader);
 
 		//glStencilFunc(GL_EQUAL, 1, 0x00);
 
@@ -298,3 +304,94 @@ void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::v
 	}
 }
 
+struct FrustumVertex {
+	Vec3 position;
+};
+
+// Function to draw a frustum outline based on a projection-view matrix
+void drawFrustum(Mat4 projectionViewMatrix, const Vec4& color, Shader& shader) {
+	// Define the 8 corners in normalized device coordinates (-1 to 1 cube)
+	// For OpenGL, the NDC has z from -1 (near) to 1 (far)
+	Vec4 frustumCornersNDC[8] = {
+		// Near plane (z = -1)
+		Vec4(-1.0f, -1.0f, -1.0f, 1.0f), // bottom-left-near
+		Vec4(1.0f, -1.0f, -1.0f, 1.0f), // bottom-right-near
+		Vec4(1.0f,  1.0f, -1.0f, 1.0f), // top-right-near
+		Vec4(-1.0f,  1.0f, -1.0f, 1.0f), // top-left-near
+
+		// Far plane (z = 1)
+		Vec4(-1.0f, -1.0f,  1.0f, 1.0f), // bottom-left-far
+		Vec4(1.0f, -1.0f,  1.0f, 1.0f), // bottom-right-far
+		Vec4(1.0f,  1.0f,  1.0f, 1.0f), // top-right-far
+		Vec4(-1.0f,  1.0f,  1.0f, 1.0f)  // top-left-far
+	};
+
+	// Calculate the inverse of the projection-view matrix
+	Mat4 inverseMatrix = projectionViewMatrix.inversa();
+
+	// Transform corners from NDC to world space
+	Vec3 frustumCornersWorld[8];
+	for (int i = 0; i < 8; i++) {
+		// Transform to world space
+		Vec4 worldHomogeneous = inverseMatrix * frustumCornersNDC[i];
+
+		// Perform perspective divide
+		frustumCornersWorld[i] = Vec3(
+			worldHomogeneous.x / worldHomogeneous.w,
+			worldHomogeneous.y / worldHomogeneous.w,
+			worldHomogeneous.z / worldHomogeneous.w
+		);
+	}
+
+	// Define the 12 edges of the frustum (indices of frustumCornersWorld)
+	unsigned int edges[12][2] = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0},  // Near plane edges
+		{4, 5}, {5, 6}, {6, 7}, {7, 4},  // Far plane edges
+		{0, 4}, {1, 5}, {2, 6}, {3, 7}   // Connecting edges
+	};
+
+	// Create vertices for the lines
+	std::vector<FrustumVertex> vertices;
+	for (int i = 0; i < 12; i++) {
+		FrustumVertex v1 = { frustumCornersWorld[edges[i][0]] };
+		FrustumVertex v2 = { frustumCornersWorld[edges[i][1]] };
+		vertices.push_back(v1);
+		vertices.push_back(v2);
+	}
+
+	// Create VAO, VBO
+	GLuint VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(FrustumVertex), vertices.data(), GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FrustumVertex), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Use the provided shader
+	shader.UseProgram();
+
+	// Set the color uniform
+	GLint colorLoc = glGetUniformLocation(shader.ID, "lineColor");
+	glUniform4f(colorLoc, color.x, color.y, color.z, color.w);
+
+	// Set model matrix to identity (already in world space)
+	Mat4 identity = Mat4();
+	GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, identity.value_ptr());
+
+	// Draw the frustum as lines
+	glLineWidth(2.0f);
+	glDrawArrays(GL_LINES, 0, vertices.size());
+	glLineWidth(1.0f);
+
+	// Clean up
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+}
