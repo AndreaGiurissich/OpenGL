@@ -16,25 +16,9 @@
 #include "Mesh.h"
 #include "Model.h"
 
-// -------------------------- DEBUG QUAD SETUP --------------------------
-float quadVertices[] = {
-	// positions        // texCoords
-	-1.0f,  1.0f,      0.0f, 1.0f,
-	-1.0f, -1.0f,      0.0f, 0.0f,
-	 1.0f, -1.0f,      1.0f, 0.0f,
-
-	-1.0f,  1.0f,      0.0f, 1.0f,
-	 1.0f, -1.0f,      1.0f, 0.0f,
-	 1.0f,  1.0f,      1.0f, 1.0f
-};
-
-
 
 //caricamento modelli 3d
 void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances);
-
-void renderCube();
-void renderQuad();
 
 int main()
 	{
@@ -162,8 +146,8 @@ int main()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 	float clampColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
@@ -188,16 +172,7 @@ int main()
 	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
 
 
-	unsigned int quadVAO, quadVBO;
-	glGenVertexArrays(1, &quadVAO);
-	glGenBuffers(1, &quadVBO);
-	glBindVertexArray(quadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	
 
 
 	//-------------------------------------------------------------------------//
