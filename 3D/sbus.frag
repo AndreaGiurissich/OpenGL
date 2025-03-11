@@ -1,12 +1,10 @@
 #version 400 core
 //output colori in RGBA
 out vec4 FragColor;
-
 in vec2 TexCoords;
 
 in vec3 Normal;
 in vec3 crntPos;
-
 in vec4 fragPosLight;
 
 uniform sampler2D texture_diffuse1;

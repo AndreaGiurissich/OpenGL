@@ -140,7 +140,7 @@ int main()
 	glGenFramebuffers(1, &depthMapFBO);
 
 	//create a 2D texture that we'll use as the framebuffer's depth buffer:
-	unsigned int shadowWidth = 2048, shadowHeight = 2048;
+	unsigned int shadowWidth = 4096, shadowHeight = 4096;
 
 	GLuint depthMap;
 	glGenTextures(1, &depthMap);
@@ -164,7 +164,7 @@ int main()
 	
 
 	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
-	Mat4 ortho = Mat4().ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 7.5f);
+	Mat4 ortho = Mat4().ortho(-5.0f, 5.0f, -5.0f, 5.0f, 1.0f, 7.5f);
 	std::cout << ortho << std::endl;
 
 
@@ -217,7 +217,7 @@ int main()
 	double timeDiff;
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
-	float angle = 0.0f;
+	float angle = -10.0f;
 	glfwSwapInterval(1);
 	//Ciclo di rendering
 	while (!glfwWindowShouldClose(window))
@@ -227,7 +227,7 @@ int main()
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
 
-		currentTick += timeDiff * 240.0f;
+		currentTick += timeDiff * 120.0f;
 		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
 		angle = timeOfDay * 360.0f;
 
