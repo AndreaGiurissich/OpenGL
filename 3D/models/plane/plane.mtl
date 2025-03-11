@@ -1,2 +1,16 @@
-# Blender 4.5.0 Alpha MTL File: 'None'
-# www.blender.org
+# Material Template Library for a Plane
+
+newmtl plane
+# Ambient color (RGB)
+Ka 0.2 0.2 0.2
+# Diffuse color (RGB)
+Kd 0.8 0.8 0.8
+# Specular color (RGB)
+Ks 1.0 1.0 1.0
+# Transparency (0 = transparent, 1 = opaque)
+d 1.0
+# Specular exponent (0-1000)
+Ns 10
+#illumination
+illum 2
+map_Kd plane_diffuse.jpg

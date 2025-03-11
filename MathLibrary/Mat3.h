@@ -37,6 +37,7 @@ public:
 
 	Vec3 operator*(const Vec3& v); //prodotto matrice vettore fatto con l'overload dell'operatore *
 	Mat3 operator*(const Mat3& mat); //prodotto matrice matrice (riga per colonna)
+	Mat3 rotation(float degrees, Vec3 axis);
 
 	float det();
 	Mat3 tras();

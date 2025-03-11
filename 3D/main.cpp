@@ -124,7 +124,7 @@ int main()
 
 
 	Vec4 lightColor =Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	Vec3 lightPos = Vec3(0.0f, 1.0f, 0.0001f); // Very slight offset
+	Vec3 lightPos = Vec3(0.1f, 0.5f, 0.1f);
 
 	program1.UseProgram();
 	int shaderUniformLoc5 = glGetUniformLocation(program1.ID, "lightPos");
@@ -161,21 +161,50 @@ int main()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Mat4 ortho = Mat4().ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 7.5f);
-	std::cout << ortho << std::endl;
-	//std::cout << ortoProjection << std::endl;
-
-	Mat4 lightView = Mat4().lookAt( lightPos , Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
-	std::cout << lightView << std::endl;
-	Mat4 lightProjection = ortho.tras() * lightView;
-
-	std::cout << lightProjection << std::endl;
-
-	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
-
-	Shader frustumShader = Shader("frustum.vert", "frustum.frag");
 	
 
+	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
+	Mat4 ortho = Mat4().ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 7.5f);
+	std::cout << ortho << std::endl;
+
+
+	Shader frustumShader = Shader("frustum.vert", "frustum.frag");
+
+	//---------------------------------------------------------------//
+
+	// Quad vertices and indices (bottom-left corner)
+	float quadVertices[] = {
+		// Positions    // TexCoords
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 0.0f, -1.0f,  1.0f, 0.0f,
+		 0.0f,  0.0f,  1.0f, 1.0f,
+		-1.0f,  0.0f,  0.0f, 1.0f
+	};
+	unsigned int quadIndices[] = { 0, 1, 2, 0, 2, 3 };
+
+	GLuint quadVAO, quadVBO, quadEBO;
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glGenBuffers(1, &quadEBO);
+
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	// Texture coordinate attribute
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	glBindVertexArray(0);
+
+	// Create quad shader
+	Shader quadShader("debug.vert", "debug.frag");
 
 	//-------------------------------------------------------------------------//
 
@@ -184,10 +213,11 @@ int main()
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
 	double crntTime = 0.0;
+	double currentTick = 0.0;
 	double timeDiff;
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
-
+	float angle = 0.0f;
 	glfwSwapInterval(1);
 	//Ciclo di rendering
 	while (!glfwWindowShouldClose(window))
@@ -196,8 +226,13 @@ int main()
 		// Updates counter and times
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
-		counter++;
 
+		currentTick += timeDiff * 240.0f;
+		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
+		angle = timeOfDay * 360.0f;
+
+		counter++;
+		
 		if (timeDiff >= 1.0 / 30.0)
 		{
 			// Creates new title
@@ -209,10 +244,19 @@ int main()
 			// Resets times and counter
 			prevTime = crntTime;
 			counter = 0;
-
 			// Use this if you have disabled VSync
 			//camera.inputs(window);
 		}
+
+
+		//std::cout << ortoProjection << std::endl;
+
+		Mat3 rotation = Mat3().rotation(angle, Vec3(0.0f, 1.0f, 0.0f));
+		std::cout << rotation << std::endl;
+		Vec3 lightDirection = rotation * (lightPos * -10.0f);
+		Mat4 lightView = Mat4().lookAt(lightDirection, Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
+		Mat4 lightProjection = ortho.tras() * lightView;
+
 
 		glClearColor(0.25f, 0.25f, 0.50f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -252,7 +296,7 @@ int main()
 
 
 		program1.UseProgram(); //quale shaderprogram usare
-
+		glUniform3f(glGetUniformLocation(program1.ID, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
 		glUniformMatrix4fv(glGetUniformLocation(program1.ID, "lightProjection"), 1, GL_FALSE, lightProjection.value_ptr());
 
 		// Bind the Shadow Map
@@ -275,6 +319,21 @@ int main()
 		Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
 		drawFrustum(lightProjection, lightFrustumColor, frustumShader);
 
+		// Render shadow map quad
+		glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
+		quadShader.UseProgram();
+
+		// Bind the depth map texture to texture unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
+
+		// Draw quad
+		glBindVertexArray(quadVAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glEnable(GL_DEPTH_TEST); // Re-enable depth test
 		//glStencilFunc(GL_EQUAL, 1, 0x00);
 
 		glfwSwapBuffers(window);

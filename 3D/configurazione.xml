@@ -13,12 +13,12 @@
 		<flipUVs>true</flipUVs>
 
 		<translatex>0</translatex>
-		<translatey>0</translatey>
+		<translatey>-4</translatey>
 		<translatez>0</translatez>
 
-		<scaley>2</scaley>
-		<scalez>2</scalez>
-		<scalex>2</scalex>
+		<scaley>10</scaley>
+		<scalez>10</scalez>
+		<scalex>10</scalex>
 
 		<gradi>0.0</gradi>
 		<rotatex>0.0</rotatex>
@@ -29,21 +29,21 @@
 	<model id="B">
 
 		<name>cazzone</name>
-		<path>models/f16/f16.obj</path>
+		<path>models/sponza/sponza.obj</path>
 		<flipUVs>true</flipUVs>
 
 		<translatex>0</translatex>
-		<translatey>1</translatey>
+		<translatey>-2</translatey>
 		<translatez>0</translatez>
 
-		<scalex>1</scalex>
-		<scaley>1</scaley>
-		<scalez>1</scalez>
+		<scalex>0.0015</scalex>
+		<scaley>0.0015</scaley>
+		<scalez>0.0015</scalez>
 
 		<gradi>0.0</gradi>
 		<rotatex>0.0</rotatex>
 		<rotatey>0.0</rotatey>
 		<rotatez>0.0</rotatez>
 	</model>
-
+	
 </Root>
