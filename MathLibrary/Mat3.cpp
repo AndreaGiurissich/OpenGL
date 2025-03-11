@@ -1,4 +1,6 @@
 #include "Mat3.h"
+
+#include <corecrt_math_defines.h>
 #include <iostream>
 
 using namespace std;
@@ -217,6 +219,37 @@ Mat3 Mat3::operator*(const Mat3& mat)
 	return{ x11 * mat.x11 + x12 * mat.x21 + x13 * mat.x31, x11 * mat.x12 + x12 * mat.x22 + x13 * mat.x32, x11 * mat.x13 + x12 * mat.x23 + x13 * mat.x33,
 			x21 * mat.x11 + x22 * mat.x21 + x23 * mat.x31, x21 * mat.x12 + x22 * mat.x22 + x23 * mat.x32, x21 * mat.x13 + x22 * mat.x23 + x23 * mat.x33,
 			x31 * mat.x11 + x32 * mat.x21 + x33 * mat.x31, x31 * mat.x12 + x32 * mat.x22 + x33 * mat.x32, x31 * mat.x13 + x32 * mat.x23 + x33 * mat.x33 };
+}
+
+//rotazione
+Mat3 Mat3::rotation(float degrees, Vec3 axis) {
+	Mat3 result;
+
+	float radians = degrees * (M_PI / 180.0f);
+	float cosTheta = std::cos(radians);
+	float sinTheta = std::sin(radians);
+	float oneMinusCosTheta = 1.0f - cosTheta;
+
+	float x = axis.x;
+	float y = axis.y;
+	float z = axis.z;
+
+	result.x11 = cosTheta + x * x * oneMinusCosTheta;
+	result.x12 = x * y * oneMinusCosTheta - z * sinTheta;
+	result.x13 = x * z * oneMinusCosTheta + y * sinTheta;
+
+
+	result.x21 = y * x * oneMinusCosTheta + z * sinTheta;
+	result.x22 = cosTheta + y * y * oneMinusCosTheta;
+	result.x23 = y * z * oneMinusCosTheta - x * sinTheta;
+
+
+	result.x31 = z * x * oneMinusCosTheta - y * sinTheta;
+	result.x32 = z * y * oneMinusCosTheta + x * sinTheta;
+	result.x33 = cosTheta + z * z * oneMinusCosTheta;
+
+
+	return *this * result;
 }
 
 float Mat3::det()

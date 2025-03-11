@@ -21,6 +21,8 @@ int samples = 8;
 
 //caricamento modelli 3d
 void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances);
+void drawFrustum(Mat4 projectionViewMatrix, const Vec4& color, Shader& shader);
+
 
 int main()
 {
@@ -129,7 +131,7 @@ int main()
 
 
 	Vec4 lightColor =Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	Vec3 lightPos = Vec3(-2.0f, 4.0f, -1.0f);
+	Vec3 lightPos = Vec3(0.1f, 0.5f, 0.1f);
 
 	program1.UseProgram();
 	int shaderUniformLoc5 = glGetUniformLocation(program1.ID, "lightPos");
@@ -158,7 +160,7 @@ int main()
 	glGenFramebuffers(1, &depthMapFBO);
 
 	//create a 2D texture that we'll use as the framebuffer's depth buffer:
-	unsigned int shadowWidth = 2048, shadowHeight = 2048;
+	unsigned int shadowWidth = 4096, shadowHeight = 4096;
 
 	GLuint depthMap;
 	glGenTextures(1, &depthMap);
@@ -179,18 +181,50 @@ int main()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Mat4 ortho = Mat4();
-	ortho = ortho.ortho(-35.0f, 35.0f, -35.0f, 35.0f, 0.1f, 75.0f);
-	std::cout << "ORTHO" << ortho << std::endl;
-
-	Mat4 lightView = Mat4();
-	lightView = lightView.lookAt(lightPos * 20.0f, Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
-	std::cout << "LIGHTVIEW" << lightView << std::endl;
-
-	Mat4 lightProjection = ortho.tras() * lightView;
-	std::cout << "LIGHTPROJECTION" << lightProjection << std::endl;
+	
 
 	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
+	Mat4 ortho = Mat4().ortho(-5.0f, 5.0f, -5.0f, 5.0f, 1.0f, 7.5f);
+	std::cout << ortho << std::endl;
+
+
+	Shader frustumShader = Shader("frustum.vert", "frustum.frag");
+
+	//---------------------------------------------------------------//
+
+	// Quad vertices and indices (bottom-left corner)
+	float quadVertices[] = {
+		// Positions    // TexCoords
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 0.0f, -1.0f,  1.0f, 0.0f,
+		 0.0f,  0.0f,  1.0f, 1.0f,
+		-1.0f,  0.0f,  0.0f, 1.0f
+	};
+	unsigned int quadIndices[] = { 0, 1, 2, 0, 2, 3 };
+
+	GLuint quadVAO, quadVBO, quadEBO;
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glGenBuffers(1, &quadEBO);
+
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	// Texture coordinate attribute
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	glBindVertexArray(0);
+
+	// Create quad shader
+	Shader quadShader("debug.vert", "debug.frag");
 
 	//-------------------------------------------------------------------------//
 
@@ -199,14 +233,11 @@ int main()
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
 	double crntTime = 0.0;
+	double currentTick = 0.0;
 	double timeDiff;
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
-
-	float currentTick = 0.0f;
-	float deltaTime = 0.0f;
-	float lastFrame = 0.0f;
-
+	float angle = -10.0f;
 	glfwSwapInterval(1);
 
 	//----------CICLO DI RENDERING----------
@@ -215,8 +246,13 @@ int main()
 		// Updates counter and times
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
-		counter++;
 
+		currentTick += timeDiff * 120.0f;
+		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
+		angle = timeOfDay * 360.0f;
+
+		counter++;
+		
 		if (timeDiff >= 1.0 / 30.0)
 		{
 			// Creates new title
@@ -228,10 +264,19 @@ int main()
 			// Resets times and counter
 			prevTime = crntTime;
 			counter = 0;
-
 			// Use this if you have disabled VSync
 			//camera.inputs(window);
 		}
+
+
+		//std::cout << ortoProjection << std::endl;
+
+		Mat3 rotation = Mat3().rotation(angle, Vec3(0.0f, 1.0f, 0.0f));
+		std::cout << rotation << std::endl;
+		Vec3 lightDirection = rotation * (lightPos * -10.0f);
+		Mat4 lightView = Mat4().lookAt(lightDirection, Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
+		Mat4 lightProjection = ortho.tras() * lightView;
+
 
 		glClearColor(0.25f, 0.25f, 0.50f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -289,7 +334,7 @@ int main()
 
 
 		program1.UseProgram(); //quale shaderprogram usare
-
+		glUniform3f(glGetUniformLocation(program1.ID, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
 		glUniformMatrix4fv(glGetUniformLocation(program1.ID, "lightProjection"), 1, GL_FALSE, lightProjection.value_ptr());
 
 		// Bind the Shadow Map
@@ -306,7 +351,27 @@ int main()
 
 		modelsLoading(program1, uniqueModels, instances);
 
+		// Draw the light's view frustum (shadow map)
+		frustumShader.UseProgram();
+		camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
+		Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
+		drawFrustum(lightProjection, lightFrustumColor, frustumShader);
 
+		// Render shadow map quad
+		glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
+		quadShader.UseProgram();
+
+		// Bind the depth map texture to texture unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
+
+		// Draw quad
+		glBindVertexArray(quadVAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glEnable(GL_DEPTH_TEST); // Re-enable depth test
 		//glStencilFunc(GL_EQUAL, 1, 0x00);
 
 		glfwSwapBuffers(window);
@@ -336,3 +401,94 @@ void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::v
 	}
 }
 
+struct FrustumVertex {
+	Vec3 position;
+};
+
+// Function to draw a frustum outline based on a projection-view matrix
+void drawFrustum(Mat4 projectionViewMatrix, const Vec4& color, Shader& shader) {
+	// Define the 8 corners in normalized device coordinates (-1 to 1 cube)
+	// For OpenGL, the NDC has z from -1 (near) to 1 (far)
+	Vec4 frustumCornersNDC[8] = {
+		// Near plane (z = -1)
+		Vec4(-1.0f, -1.0f, -1.0f, 1.0f), // bottom-left-near
+		Vec4(1.0f, -1.0f, -1.0f, 1.0f), // bottom-right-near
+		Vec4(1.0f,  1.0f, -1.0f, 1.0f), // top-right-near
+		Vec4(-1.0f,  1.0f, -1.0f, 1.0f), // top-left-near
+
+		// Far plane (z = 1)
+		Vec4(-1.0f, -1.0f,  1.0f, 1.0f), // bottom-left-far
+		Vec4(1.0f, -1.0f,  1.0f, 1.0f), // bottom-right-far
+		Vec4(1.0f,  1.0f,  1.0f, 1.0f), // top-right-far
+		Vec4(-1.0f,  1.0f,  1.0f, 1.0f)  // top-left-far
+	};
+
+	// Calculate the inverse of the projection-view matrix
+	Mat4 inverseMatrix = projectionViewMatrix.inversa();
+
+	// Transform corners from NDC to world space
+	Vec3 frustumCornersWorld[8];
+	for (int i = 0; i < 8; i++) {
+		// Transform to world space
+		Vec4 worldHomogeneous = inverseMatrix * frustumCornersNDC[i];
+
+		// Perform perspective divide
+		frustumCornersWorld[i] = Vec3(
+			worldHomogeneous.x / worldHomogeneous.w,
+			worldHomogeneous.y / worldHomogeneous.w,
+			worldHomogeneous.z / worldHomogeneous.w
+		);
+	}
+
+	// Define the 12 edges of the frustum (indices of frustumCornersWorld)
+	unsigned int edges[12][2] = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0},  // Near plane edges
+		{4, 5}, {5, 6}, {6, 7}, {7, 4},  // Far plane edges
+		{0, 4}, {1, 5}, {2, 6}, {3, 7}   // Connecting edges
+	};
+
+	// Create vertices for the lines
+	std::vector<FrustumVertex> vertices;
+	for (int i = 0; i < 12; i++) {
+		FrustumVertex v1 = { frustumCornersWorld[edges[i][0]] };
+		FrustumVertex v2 = { frustumCornersWorld[edges[i][1]] };
+		vertices.push_back(v1);
+		vertices.push_back(v2);
+	}
+
+	// Create VAO, VBO
+	GLuint VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(FrustumVertex), vertices.data(), GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FrustumVertex), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Use the provided shader
+	shader.UseProgram();
+
+	// Set the color uniform
+	GLint colorLoc = glGetUniformLocation(shader.ID, "lineColor");
+	glUniform4f(colorLoc, color.x, color.y, color.z, color.w);
+
+	// Set model matrix to identity (already in world space)
+	Mat4 identity = Mat4();
+	GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, identity.value_ptr());
+
+	// Draw the frustum as lines
+	glLineWidth(2.0f);
+	glDrawArrays(GL_LINES, 0, vertices.size());
+	glLineWidth(1.0f);
+
+	// Clean up
+	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+}

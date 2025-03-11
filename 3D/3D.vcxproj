@@ -169,6 +169,8 @@
   <ItemGroup>
     <None Include="debug.frag" />
     <None Include="debug.vert" />
+    <None Include="frustum.frag" />
+    <None Include="frustum.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
     <None Include="sbus.frag" />
