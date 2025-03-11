@@ -140,6 +140,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="shaderClass.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Textures.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="rapidxml_utils.hpp" />
     <ClInclude Include="shaderClass.h" />
     <ClInclude Include="ShaderLib.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="Textures.h" />
@@ -173,11 +175,19 @@
     <None Include="sbus.vert" />
     <None Include="shadowMap.frag" />
     <None Include="shadowMap.vert" />
+    <None Include="skybox.frag" />
+    <None Include="skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess.jpg" />
     <Image Include="pavimento_diffuse.jpg" />
     <Image Include="pavimento_specular.png" />
+    <Image Include="skybox\back.bmp" />
+    <Image Include="skybox\bottom.bmp" />
+    <Image Include="skybox\front.bmp" />
+    <Image Include="skybox\left.bmp" />
+    <Image Include="skybox\right.bmp" />
+    <Image Include="skybox\top.bmp" />
     <Image Include="wood_floor_ao_4k.jpg" />
     <Image Include="wood_floor_diff_4k.jpg" />
     <Image Include="wood_floor_disp_4k.png" />

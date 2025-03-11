@@ -15,13 +15,15 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Model.h"
+#include"Skybox.h"
 
+int samples = 8;
 
 //caricamento modelli 3d
 void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances);
 
 int main()
-	{
+{
 	// Crea un documento RapidXML
 	rapidxml::xml_document<> doc;
 	// legge file xml in un vector
@@ -44,7 +46,8 @@ int main()
 	glfwInit(); //avvia glfw
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); //versione max che può usare
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0); //versione min che può usare
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);//versione min che può usare
+	glfwWindowHint(GLFW_SAMPLES, samples);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //profilo da utilizzare, pacchetto di funzioni composto da core (funzioni moderne), compatibility(outdated)
 
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "TEST", NULL, NULL);
@@ -62,12 +65,14 @@ int main()
 	printf("GL %d %d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
 	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_MULTISAMPLE);
 	//glDepthFunc(GL_LESS);
 	//glEnable(GL_STENCIL_TEST);
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 
 	// Structures to hold unique models and instances
 	std::vector<Model> uniqueModels; //Contiene solo i modelli unici
@@ -120,6 +125,8 @@ int main()
 	//Creiamo uno shader program
 	Shader program1 = Shader("sbus.vert", "sbus.frag");
 
+	Shader skyboxprogram = Shader("skybox.vert", "skybox.frag");
+
 
 	Vec4 lightColor =Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	Vec3 lightPos = Vec3(-2.0f, 4.0f, -1.0f);
@@ -130,6 +137,19 @@ int main()
 	int shaderUniformLoc6 = glGetUniformLocation(program1.ID, "lightColor");
 	glUniform4f(shaderUniformLoc6, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
+	skyboxprogram.UseProgram();
+	glUniform1i(glGetUniformLocation(skyboxprogram.ID, "skybox"), 0);
+
+	std::string faces[6]{
+		"skybox/right.bmp",
+		"skybox/left.bmp",
+		"skybox/top.bmp",
+		"skybox/bottom.bmp",
+		"skybox/front.bmp",
+		"skybox/back.bmp"
+	};
+
+	Skybox DaySky = Skybox(faces);
 
 	 //---------------------------SHADOWMAPS-------------------------------------//
 
@@ -159,21 +179,18 @@ int main()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Mat4 ortho = Mat4().ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 7.5f);
-	std::cout << ortho << std::endl;
-	//std::cout << ortoProjection << std::endl;
+	Mat4 ortho = Mat4();
+	ortho = ortho.ortho(-35.0f, 35.0f, -35.0f, 35.0f, 0.1f, 75.0f);
+	std::cout << "ORTHO" << ortho << std::endl;
 
-	Mat4 lightView = Mat4().lookAt( lightPos , Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
-	std::cout << lightView << std::endl;
+	Mat4 lightView = Mat4();
+	lightView = lightView.lookAt(lightPos * 20.0f, Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
+	std::cout << "LIGHTVIEW" << lightView << std::endl;
+
 	Mat4 lightProjection = ortho.tras() * lightView;
-
-	std::cout << lightProjection << std::endl;
+	std::cout << "LIGHTPROJECTION" << lightProjection << std::endl;
 
 	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
-
-
-	
-
 
 	//-------------------------------------------------------------------------//
 
@@ -186,11 +203,15 @@ int main()
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
 
+	float currentTick = 0.0f;
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
+
 	glfwSwapInterval(1);
-	//Ciclo di rendering
+
+	//----------CICLO DI RENDERING----------
 	while (!glfwWindowShouldClose(window))
 	{
-
 		// Updates counter and times
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
@@ -214,28 +235,46 @@ int main()
 
 		glClearColor(0.25f, 0.25f, 0.50f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glStencilFunc(GL_NEVER, 1, 0xFF);
-		//glStencilOp(GL_REPLACE, GL_REPLACE, GL_KEEP); // stencil no, stencil ok - depth no, stencil ok - depth ok
-		//glStencilMask(0xFF);
-		glClear(GL_STENCIL_BUFFER_BIT);
 
 		camera.inputs(window);
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
+		//SKYBOX
+		glDepthFunc(GL_LEQUAL);
 
-		glEnable(GL_DEPTH_TEST);
+		deltaTime = crntTime - lastFrame;
+		lastFrame = crntTime;
+
+		currentTick += deltaTime * 200.0f;
+
+		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
+		float angle = timeOfDay * 360.0f;
+
+		skyboxprogram.UseProgram();
+		Mat4 view = Mat4();
+		Mat4 projection = Mat4();
+		Mat4 rotationM = Mat4();
+		view = view.lookAtCubemap(camera.Position, camera.Position + camera.Orientation, camera.Up);
+		projection = projection.perspective(120.0, (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+		//rotationM = rotationM.rotation(angle, Vec3(0.0f, 0.0f, 1.0f));
+		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "view"), 1, GL_TRUE, view.value_ptr());
+		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "projection"), 1, GL_FALSE, projection.value_ptr());
+		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "rotation"), 1, GL_FALSE, rotationM.value_ptr());
+
+		DaySky.BindVAO();
+
+		glDepthFunc(GL_LESS);
+		//-----------------------------
+
 		shadowMapProgram.UseProgram();
 
 		GLuint lightProjectionLoc = glGetUniformLocation(shadowMapProgram.ID, "lightProjection");
 		glUniformMatrix4fv(lightProjectionLoc, 1, GL_FALSE, lightProjection.value_ptr());
 		// Set lightProjection matrix each frame (in case it changes)
 
-
 		glViewport(0, 0, shadowWidth, shadowHeight);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-
-		
 
 		// Render all instances with their model matrices
 		for (const auto& instance : instances) {
@@ -266,7 +305,6 @@ int main()
 		////glStencilMask(0xFF); 
 
 		modelsLoading(program1, uniqueModels, instances);
-
 
 
 		//glStencilFunc(GL_EQUAL, 1, 0x00);
