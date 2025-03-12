@@ -45,5 +45,86 @@
 		<rotatey>0.0</rotatey>
 		<rotatez>0.0</rotatez>
 	</model>
-	
+
+	<model id="B">
+
+		<name>cazzonefuego</name>
+		<path>models/fire/fire.obj</path>
+		<flipUVs>true</flipUVs>
+
+		<translatex>0.735</translatex>
+		<translatey>-1.82</translatey>
+		<translatez>0.215</translatez>
+
+		<scalex>0.010</scalex>
+		<scaley>0.0075</scaley>
+		<scalez>0.010</scalez>
+
+		<gradi>0.0</gradi>
+		<rotatex>0.0</rotatex>
+		<rotatey>0.0</rotatey>
+		<rotatez>0.0</rotatez>
+	</model>
+
+	<model id="B">
+
+		<name>cazzonefuego</name>
+		<path>models/fire/fire.obj</path>
+		<flipUVs>true</flipUVs>
+
+		<translatex>0.735</translatex>
+		<translatey>-1.82</translatey>
+		<translatez>-0.215</translatez>
+
+		<scalex>0.010</scalex>
+		<scaley>0.0075</scaley>
+		<scalez>0.010</scalez>
+
+		<gradi>0.0</gradi>
+		<rotatex>0.0</rotatex>
+		<rotatey>0.0</rotatey>
+		<rotatez>0.0</rotatez>
+	</model>
+
+	<model id="B">
+
+		<name>cazzonefuego</name>
+		<path>models/fire/fire.obj</path>
+		<flipUVs>true</flipUVs>
+
+		<translatex>-0.735</translatex>
+		<translatey>-1.82</translatey>
+		<translatez>0.215</translatez>
+
+		<scalex>0.010</scalex>
+		<scaley>0.0075</scaley>
+		<scalez>0.010</scalez>
+
+		<gradi>0.0</gradi>
+		<rotatex>0.0</rotatex>
+		<rotatey>0.0</rotatey>
+		<rotatez>0.0</rotatez>
+	</model>
+
+	<model id="B">
+
+		<name>cazzonefuego</name>
+		<path>models/fire/fire.obj</path>
+		<flipUVs>true</flipUVs>
+
+		<translatex>-0.735</translatex>
+		<translatey>-1.82</translatey>
+		<translatez>-0.215</translatez>
+
+		<scalex>0.010</scalex>
+		<scaley>0.0075</scaley>
+		<scalez>0.010</scalez>
+
+		<gradi>0.0</gradi>
+		<rotatex>0.0</rotatex>
+		<rotatey>0.0</rotatey>
+		<rotatez>0.0</rotatez>
+	</model>
+
+
 </Root>
