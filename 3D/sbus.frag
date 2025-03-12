@@ -16,10 +16,54 @@ uniform vec4 lightColor;
 uniform vec3 lightDirection;
 uniform vec3 lightPos;
 
+uniform float angle;
+
 uniform vec3 camPos;
 
 float near = 0.1; 
 float far  = 100.0; 
+
+// Calculate light color based on angle
+vec4 calculateLightColor()
+{
+    vec4 computedLightColor; // Default white light
+    vec4 lastcomputedLightColor;
+
+    if (angle >= 0.0 && angle <= 45.0) {
+        float t = (angle - 0.0) / 45.0; // Normalize angle to range [0, 1]
+        computedLightColor = vec4(1.0, 1.0 - 0.6 * t, 1.0 - t, 1.0); // White to red
+    }
+    else if (angle >= 230.0 && angle <= 275.0) {
+        float t = (angle - 230.0) / 45.0; // Normalize angle to range [0, 1]
+        computedLightColor = vec4(1.0, 0.6 + 0.4 * t, 0.0 + t, 1.0); // Red to white
+    }
+	else if (angle >= 45.0f && angle <= 230.0f) 
+	{
+		vec4 nightColor = vec4(0.2, 0.3, 0.6, 1.0);
+		vec4 finalLightColor;
+
+		float alpha;
+
+			if (angle <= 137.5f) 
+			{
+				// Prima metà notte: 45° to 137.5°
+				alpha = (angle - 45.0f) / 92.5f; // Normalized to 0-1
+				finalLightColor = mix(vec4(1.0, 0.4, 0.0, 1.0), nightColor, alpha);
+				return finalLightColor;
+			}
+			else 
+			{
+				// Seconda metà notte: 137.5° to 230°
+				alpha = (230.0f - angle) / 92.5f; // Normalized to 1-0
+				finalLightColor = mix(vec4(1.0, 0.7, 0.0, 1.0), nightColor, alpha);
+				return finalLightColor;
+			}
+
+
+	}else computedLightColor = vec4(1.0, 1.0, 1.0, 1.0); // Default white light
+
+    return computedLightColor;
+}
 
 vec4 pointLight()
 {
@@ -83,7 +127,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 vec4 direcLight()
 {
 	//ambient lighting
-	float ambient = 0.20f;
+	float ambient = 0.30f;
 
 	//diffuse lighting
 	vec3 normal = normalize(Normal);
@@ -99,7 +143,11 @@ vec4 direcLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(texture_diffuse1, TexCoords) * (diffuse * (1.0f - ShadowCalculation(fragPosLight)) + ambient) + texture(texture_specular1, TexCoords).r * specular * (1.0f - ShadowCalculation(fragPosLight)));
+	//vec4 finalLightColor = calculateLightColor();
+
+	vec4 finalLightColor = lightColor;
+
+	return (texture(texture_diffuse1, TexCoords) * (diffuse * (1.0f - ShadowCalculation(fragPosLight)) + ambient) + texture(texture_specular1, TexCoords).r * specular * (1.0f - ShadowCalculation(fragPosLight))) * finalLightColor;
 }
 
 vec4 spotLight()

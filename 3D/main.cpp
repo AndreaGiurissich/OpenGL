@@ -22,7 +22,7 @@ int samples = 8;
 //caricamento modelli 3d
 void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances);
 void drawFrustum(Mat4 projectionViewMatrix, const Vec4& color, Shader& shader);
-
+Vec4 calculateLightColor(float angle, Vec4 lightColor);
 
 int main()
 {
@@ -49,7 +49,7 @@ int main()
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); //versione max che può usare
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);//versione min che può usare
-	glfwWindowHint(GLFW_SAMPLES, samples);
+	glfwWindowHint(GLFW_SAMPLES, samples); //attiva multisampling
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //profilo da utilizzare, pacchetto di funzioni composto da core (funzioni moderne), compatibility(outdated)
 
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "TEST", NULL, NULL);
@@ -237,8 +237,10 @@ int main()
 	double timeDiff;
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
-	float angle = -10.0f;
+	float angle = -30.0f;
 	glfwSwapInterval(1);
+
+	
 
 	//----------CICLO DI RENDERING----------
 	while (!glfwWindowShouldClose(window))
@@ -247,9 +249,11 @@ int main()
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
 
-		currentTick += timeDiff * 120.0f;
+		currentTick += timeDiff * 240.0f;
 		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
 		angle = timeOfDay * 360.0f;
+
+		std::cout << angle << std::endl;
 
 		counter++;
 		
@@ -272,7 +276,6 @@ int main()
 		//std::cout << ortoProjection << std::endl;
 
 		Mat3 rotation = Mat3().rotation(angle, Vec3(0.0f, 1.0f, 0.0f));
-		//std::cout << rotation << std::endl;
 		Vec3 lightDirection = rotation * (lightPos * -10.0f);
 		Mat4 lightView = Mat4().lookAt(lightDirection, Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
 		Mat4 lightProjection = ortho.tras() * lightView;
@@ -329,11 +332,17 @@ int main()
 		glUniform3f(glGetUniformLocation(program1.ID, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
 		glUniformMatrix4fv(glGetUniformLocation(program1.ID, "lightProjection"), 1, GL_FALSE, lightProjection.value_ptr());
 
+		// Passiamo the angle directly to the shader instead of calculating light color in C++
+		glUniform1f(glGetUniformLocation(program1.ID, "angle"), angle);
+
+
 		// Bind the Shadow Map
 		glActiveTexture(GL_TEXTURE0 + 3);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glUniform1i(glGetUniformLocation(program1.ID, "shadowMap"), 3);
 
+		int shaderUniformLoc7 = glGetUniformLocation(program1.ID, "lightColor");
+		glUniform4f(shaderUniformLoc7, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		int shaderUniformLoc4 = glGetUniformLocation(program1.ID, "camPos");
 		glUniform3f(shaderUniformLoc4, camera.Position.x, camera.Position.y, camera.Position.z);
 
@@ -343,28 +352,28 @@ int main()
 
 		modelsLoading(program1, uniqueModels, instances);
 
-		// Draw the light's view frustum (shadow map)
-		frustumShader.UseProgram();
-		camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
-		Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
-		drawFrustum(lightProjection, lightFrustumColor, frustumShader);
+		//// Draw the light's view frustum (shadow map)
+		//frustumShader.UseProgram();
+		//camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
+		//Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
+		//drawFrustum(lightProjection, lightFrustumColor, frustumShader);
 
-		// Render shadow map quad
-		glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
-		quadShader.UseProgram();
+		//// Render shadow map quad
+		//glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
+		//quadShader.UseProgram();
 
-		// Bind the depth map texture to texture unit 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
+		//// Bind the depth map texture to texture unit 0
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, depthMap);
+		//glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
 
-		// Draw quad
-		glBindVertexArray(quadVAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		//// Draw quad
+		//glBindVertexArray(quadVAO);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glBindVertexArray(0);
 
-		glEnable(GL_DEPTH_TEST); // Re-enable depth test
-		//glStencilFunc(GL_EQUAL, 1, 0x00);
+		//glEnable(GL_DEPTH_TEST); // Re-enable depth test
+		////glStencilFunc(GL_EQUAL, 1, 0x00);
 
 		glfwSwapBuffers(window);
 
@@ -391,6 +400,25 @@ void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::v
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_TRUE, modelMatrix.value_ptr());
 		uniqueModels[modelIndex].Draw(shaderProgram);
 	}
+}
+
+// Function to update light color based on angle
+Vec4 calculateLightColor(float angle, Vec4 lightColor)
+{
+	
+
+	if (angle >= 0.0f && angle <= 45.0f) {
+		float t = (angle - 0.0f) / 45.0f; // Normalize angle to range [0, 1]
+		lightColor = Vec4(1.0f, 1.0f - 0.6 * t , 1.0f - t, 1.0f); // Da bianco a rosso
+	}
+
+	if (angle >= 230.0f && angle <= 275.0f) {
+		float t = (angle - 230.0f) / 45.0f; // Normalize angle to range [0, 1]
+		lightColor = Vec4(1.0f, 0.8 + 0.2 * t, 0.0f + t, 1.0f); //Da rosso a bianco
+	}
+
+
+	return lightColor;
 }
 
 struct FrustumVertex {
