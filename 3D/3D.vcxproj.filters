@@ -166,6 +166,9 @@
     <None Include="frustum.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="sbus.geom">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="chess.jpg">

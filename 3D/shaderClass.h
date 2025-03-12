@@ -9,6 +9,7 @@ class Shader
 {
 	public:
 		GLuint ID;
+		Shader(std::string vertexPath, std::string fragmentPath, std::string geometryPath);
 		Shader(std::string vertexPath, std::string fragmentPath);
 
 		void setInt(const char* uniform, int value);

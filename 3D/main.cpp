@@ -272,7 +272,7 @@ int main()
 		//std::cout << ortoProjection << std::endl;
 
 		Mat3 rotation = Mat3().rotation(angle, Vec3(0.0f, 1.0f, 0.0f));
-		std::cout << rotation << std::endl;
+		//std::cout << rotation << std::endl;
 		Vec3 lightDirection = rotation * (lightPos * -10.0f);
 		Mat4 lightView = Mat4().lookAt(lightDirection, Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
 		Mat4 lightProjection = ortho.tras() * lightView;
@@ -286,14 +286,6 @@ int main()
 
 		//SKYBOX
 		glDepthFunc(GL_LEQUAL);
-
-		deltaTime = crntTime - lastFrame;
-		lastFrame = crntTime;
-
-		currentTick += deltaTime * 200.0f;
-
-		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
-		float angle = timeOfDay * 360.0f;
 
 		skyboxprogram.UseProgram();
 		Mat4 view = Mat4();
