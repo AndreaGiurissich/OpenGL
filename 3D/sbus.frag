@@ -69,7 +69,7 @@ vec4 pointLight()
 {
 
 	vec3 lightVec = lightPos - crntPos;
-	// variabili della point light
+	//variabili della point light
 	float dist = length(lightVec);
 	float a = 0.05f;
 	float b = 0.01f;
@@ -143,9 +143,9 @@ vec4 direcLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	//vec4 finalLightColor = calculateLightColor();
+	vec4 finalLightColor = calculateLightColor();
 
-	vec4 finalLightColor = lightColor;
+	//vec4 finalLightColor = lightColor;
 
 	return (texture(texture_diffuse1, TexCoords) * (diffuse * (1.0f - ShadowCalculation(fragPosLight)) + ambient) + texture(texture_specular1, TexCoords).r * specular * (1.0f - ShadowCalculation(fragPosLight))) * finalLightColor;
 }

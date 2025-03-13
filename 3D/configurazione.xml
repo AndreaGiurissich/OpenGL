@@ -74,7 +74,7 @@
 
 		<translatex>0.735</translatex>
 		<translatey>-1.82</translatey>
-		<translatez>-0.215</translatez>
+		<translatez>-0.33</translatez>
 
 		<scalex>0.010</scalex>
 		<scaley>0.0075</scaley>
@@ -92,7 +92,7 @@
 		<path>models/fire/fire.obj</path>
 		<flipUVs>true</flipUVs>
 
-		<translatex>-0.735</translatex>
+		<translatex>-0.93</translatex>
 		<translatey>-1.82</translatey>
 		<translatez>0.215</translatez>
 
@@ -112,9 +112,9 @@
 		<path>models/fire/fire.obj</path>
 		<flipUVs>true</flipUVs>
 
-		<translatex>-0.735</translatex>
+		<translatex>-0.93</translatex>
 		<translatey>-1.82</translatey>
-		<translatez>-0.215</translatez>
+		<translatez>-0.33</translatez>
 
 		<scalex>0.010</scalex>
 		<scaley>0.0075</scaley>
