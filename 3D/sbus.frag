@@ -118,7 +118,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
         for(int y = -1; y <= 1; ++y)
         {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
-            shadow += (currentDepth - 0.01) > pcfDepth ? 1.0 : 0.0;        
+            shadow += (currentDepth - 0.005) > pcfDepth ? 1.0 : 0.0;        
         }    
     }
 	return shadow /= 9.0;
@@ -143,9 +143,9 @@ vec4 direcLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	//vec4 finalLightColor = calculateLightColor();
+	vec4 finalLightColor = calculateLightColor();
 
-	vec4 finalLightColor = lightColor;
+
 
 	return (texture(texture_diffuse1, TexCoords) * (diffuse * (1.0f - ShadowCalculation(fragPosLight)) + ambient) + texture(texture_specular1, TexCoords).r * specular * (1.0f - ShadowCalculation(fragPosLight))) * finalLightColor;
 }

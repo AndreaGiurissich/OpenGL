@@ -184,7 +184,7 @@ int main()
 	
 
 	Shader shadowMapProgram = Shader("shadowMap.vert", "shadowMap.frag");
-	Mat4 ortho = Mat4().ortho(-5.0f, 5.0f, -5.0f, 5.0f, 1.0f, 7.5f);
+	Mat4 ortho = Mat4().ortho(-4.0f, 4.0f, -4.0, 4.0, 1.5f, 5.5f);
 	std::cout << ortho << std::endl;
 
 
@@ -276,7 +276,7 @@ int main()
 		//std::cout << ortoProjection << std::endl;
 
 		Mat3 rotation = Mat3().rotation(angle, Vec3(0.0f, 1.0f, 0.0f));
-		Vec3 lightDirection = rotation * (lightPos * -10.0f);
+		Vec3 lightDirection = rotation * (lightPos * -7.0f);
 		Mat4 lightView = Mat4().lookAt(lightDirection, Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
 		Mat4 lightProjection = ortho.tras() * lightView;
 
@@ -300,12 +300,13 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "view"), 1, GL_TRUE, view.value_ptr());
 		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "projection"), 1, GL_FALSE, projection.value_ptr());
 		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "rotation"), 1, GL_FALSE, rotationM.value_ptr());
+		glUniform1f(glGetUniformLocation(skyboxprogram.ID, "angle"), angle);
 
 		DaySky.BindVAO();
 
 		glDepthFunc(GL_LESS);
 		//-----------------------------
-
+		glCullFace(GL_FRONT);
 		shadowMapProgram.UseProgram();
 
 		GLuint lightProjectionLoc = glGetUniformLocation(shadowMapProgram.ID, "lightProjection");
@@ -325,6 +326,7 @@ int main()
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glCullFace(GL_BACK);
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); // Reset viewport for main rendering
 
 
@@ -353,27 +355,27 @@ int main()
 		modelsLoading(program1, uniqueModels, instances);
 
 		//// Draw the light's view frustum (shadow map)
-		//frustumShader.UseProgram();
-		//camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
-		//Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
-		//drawFrustum(lightProjection, lightFrustumColor, frustumShader);
+		frustumShader.UseProgram();
+		camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
+		Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
+		drawFrustum(lightProjection, lightFrustumColor, frustumShader);
 
 		//// Render shadow map quad
-		//glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
-		//quadShader.UseProgram();
+		glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
+		quadShader.UseProgram();
 
-		//// Bind the depth map texture to texture unit 0
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
+		// Bind the depth map texture to texture unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
 
-		//// Draw quad
-		//glBindVertexArray(quadVAO);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//glBindVertexArray(0);
+		// Draw quad
+		glBindVertexArray(quadVAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
-		//glEnable(GL_DEPTH_TEST); // Re-enable depth test
-		////glStencilFunc(GL_EQUAL, 1, 0x00);
+		glEnable(GL_DEPTH_TEST); // Re-enable depth test
+		//glStencilFunc(GL_EQUAL, 1, 0x00);
 
 		glfwSwapBuffers(window);
 
