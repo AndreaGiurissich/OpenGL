@@ -16,6 +16,12 @@ uniform vec4 lightColor;
 uniform vec3 lightDirection;
 uniform vec3 lightPos;
 
+uniform vec3 flamePos1;
+uniform vec3 flamePos2;
+uniform vec3 flamePos3;
+uniform vec3 flamePos4;
+uniform vec4 flameLightColor;
+
 uniform float angle;
 
 uniform vec3 camPos;
@@ -65,32 +71,24 @@ vec4 calculateLightColor()
     return computedLightColor;
 }
 
-vec4 pointLight()
-{
+vec4 pointLight(vec3 flameLightPos) {
+    vec3 lightVec = flameLightPos - crntPos;
+    float dist = length(lightVec);
+    float attenuation = 0.2f;
 
-	vec3 lightVec = lightPos - crntPos;
-	//variabili della point light
-	float dist = length(lightVec);
-	float a = 0.05f;
-	float b = 0.01f;
-	float inten = 1.0f / (a * dist * dist + b * dist + 1.0f);
+    // Diffuse
+    vec3 normal = normalize(Normal);
+    vec3 lightDir = normalize(lightVec);
+    float diffuse = max(dot(normal, lightDir), 0.0);
 
-	//ambient lighting
-	float ambient = 0.20f;
+    // Specular
+    vec3 viewDir = normalize(camPos - crntPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.5), 32.0);
+    float specular = spec * 0.5;
 
-	//diffuse lighting
-	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(lightVec);
-	float diffuse = max(dot(normal, lightDirection), 0.0f);
-
-	//specular lighting 
-	float specularLight = 0.50f;
-	vec3 viewDirection = normalize(camPos - crntPos);
-	vec3 reflectionDirection = reflect(-lightDirection, normal);
-	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
-	float specular = specAmount * specularLight;
-
-	return (texture(texture_diffuse1, TexCoords) * (diffuse * inten + ambient) + texture(texture_specular1, TexCoords).r * specular * inten) ;
+    return (texture(texture_diffuse1, TexCoords) * diffuse * attenuation + 
+            texture(texture_specular1, TexCoords).r * specular * attenuation) * flameLightColor;
 }
 
 float ShadowCalculation(vec4 fragPosLightSpace)
@@ -184,7 +182,18 @@ float linearizeDepth(float depth)
 
 void main()
 {
-	// outputs final color
-	//FragColor = direcLight() * (1.0f - depth) + vec4(depth * vec3(0.85f, 0.85f, 0.90f), 1.0f);
-	FragColor = direcLight();
+	vec4 directionalLight = direcLight();
+	vec4 flameLight1 = pointLight(flamePos1);
+	vec4 flameLight2 = pointLight(flamePos2);
+	vec4 flameLight3 = pointLight(flamePos3);
+	vec4 flameLight4 = pointLight(flamePos4);
+
+	if(angle >=60.0 && angle <= 215.0)
+	{
+		FragColor = directionalLight + flameLight1 + flameLight2 + flameLight3 + flameLight4;
+	}
+	else
+	{
+		FragColor = directionalLight;
+	}
 }

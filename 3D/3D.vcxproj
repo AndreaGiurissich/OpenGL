@@ -176,6 +176,9 @@
     <None Include="sbus.frag" />
     <None Include="sbus.geom" />
     <None Include="sbus.vert" />
+    <None Include="shadowCubeMap.frag" />
+    <None Include="shadowCubeMap.geom" />
+    <None Include="shadowCubeMap.vert" />
     <None Include="shadowMap.frag" />
     <None Include="shadowMap.vert" />
     <None Include="skybox.frag" />

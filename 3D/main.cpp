@@ -76,6 +76,8 @@ int main()
 	//glCullFace(GL_BACK);
 	//glFrontFace(GL_CCW);
 
+	int flameModelIndex = -1; // Indice del modello flame.obj
+
 	// Structures to hold unique models and instances
 	std::vector<Model> uniqueModels; //Contiene solo i modelli unici
 	std::map<std::string, int> modelPathMap; // Dizionario per mappare i path dei modelli con i loro indici (nel vettore uniqueModels)
@@ -97,6 +99,10 @@ int main()
 			uniqueModels.push_back(newModel);
 			modelIndex = uniqueModels.size() - 1;
 			modelPathMap[path] = modelIndex;
+		}
+
+		if (path.find("flame.obj") != std::string::npos) {
+			flameModelIndex = modelIndex;
 		}
 
 		// Compute model matrix
@@ -192,6 +198,62 @@ int main()
 
 	//---------------------------------------------------------------//
 
+	//-----------------------SHADOWMAP POINT LIGHTS------------------//
+
+	Shader shadowCubeMapProgram("shadowCubeMap.vert", "shadowCubeMap.frag", "shadowCubeMap.geom");
+
+	unsigned int pointShadowMapFBO;
+	glGenFramebuffers(1, &pointShadowMapFBO);
+
+	unsigned int depthCubemap;
+	glGenTextures(1, &depthCubemap);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+	for (unsigned int i = 0; i < 6; i++)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, pointShadowMapFBO);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	Mat4 shadowProj = Mat4().perspective(90.0f, 1.0f, 0.1f, 100.0f);
+	Mat4 shadowTransforms[] =
+	{
+		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
+		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(-1.0f,0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
+		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f,  0.0f, 1.0f)),
+		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, -1.0f, 0.0f), Vec3(0.0f, 0.0f,-1.0f)),
+		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, 0.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f)),
+		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, -1.0f, 0.0f))
+	};
+
+	shadowCubeMapProgram.UseProgram();
+	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[0]"), 1, GL_FALSE, shadowTransforms[0].value_ptr());
+	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[1]"), 1, GL_FALSE, shadowTransforms[1].value_ptr());
+	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[2]"), 1, GL_FALSE, shadowTransforms[2].value_ptr());
+	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[3]"), 1, GL_FALSE, shadowTransforms[3].value_ptr());
+	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[4]"), 1, GL_FALSE, shadowTransforms[4].value_ptr());
+	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[5]"), 1, GL_FALSE, shadowTransforms[5].value_ptr());
+	glUniform3f(glGetUniformLocation(shadowCubeMapProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	glUniform1f(glGetUniformLocation(shadowCubeMapProgram.ID, "farPlane"), 100.0f);
+
+	//-------------------------------------------------------------------//
+
+	Vec3 flamePos1 = Vec3(0.7f, - 1.8f, 0.2f); // Posizione della prima point light
+	Vec3 flamePos2 = Vec3(0.7f, -1.8f, - 0.3f); // Posizione della seconda point light
+	Vec3 flamePos3 = Vec3(-0.9f, -1.8f, 0.2f); // Posizione della terza point light
+	Vec3 flamePos4 = Vec3(-0.9f, -1.8f, -0.3f); // Posizione della quarta point light
+	Vec4 flameLightColor =  Vec4(1.0f, 0.6f, 0.2f, 1.0f); // Colore (arancione)
+	
 	// Quad vertices and indices (bottom-left corner)
 	float quadVertices[] = {
 		// Positions    // TexCoords
@@ -351,6 +413,16 @@ int main()
 		////glStencilMask(0xFF); 
 
 		modelsLoading(program1, uniqueModels, instances);
+
+		
+
+		// Passa i parametri della point light allo shader
+		program1.UseProgram();
+		glUniform3f(glGetUniformLocation(program1.ID, "flamePos1"), flamePos1.x, flamePos1.y, flamePos1.z);
+		glUniform3f(glGetUniformLocation(program1.ID, "flamePos2"), flamePos2.x, flamePos2.y, flamePos2.z);
+		glUniform3f(glGetUniformLocation(program1.ID, "flamePos3"), flamePos3.x, flamePos3.y, flamePos3.z);
+		glUniform3f(glGetUniformLocation(program1.ID, "flamePos4"), flamePos4.x, flamePos4.y, flamePos4.z);
+		glUniform4f(glGetUniformLocation(program1.ID, "flameLightColor"), flameLightColor.x, flameLightColor.y, flameLightColor.z, flameLightColor.w);
 
 		//// Draw the light's view frustum (shadow map)
 		//frustumShader.UseProgram();
