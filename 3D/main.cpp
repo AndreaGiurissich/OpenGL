@@ -42,6 +42,13 @@ int main()
 	const unsigned int SCR_WIDTH = atoi(root_node->first_node("window")->first_node("width")->value());
 	const unsigned int SCR_HEIGHT = atoi(root_node->first_node("window")->first_node("height")->value());
 
+	//Collider da XML
+	float xmax = stof(root_node->first_node("collider")->first_node("xmax")->value());
+	float xmin = stof(root_node->first_node("collider")->first_node("xmin")->value());
+	float zmax = stof(root_node->first_node("collider")->first_node("zmax")->value());
+	float zmin = stof(root_node->first_node("collider")->first_node("zmin")->value());
+
+
 	Camera camera(SCR_WIDTH, SCR_HEIGHT, Vec3(1.0f, 0.0f, 0.0f));
 
 	//-----------------------------AVVIO-----------------------------
@@ -69,14 +76,6 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_MULTISAMPLE);
-	//glDepthFunc(GL_LESS);
-	//glEnable(GL_STENCIL_TEST);
-
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
-
-	int flameModelIndex = -1; // Indice del modello flame.obj
 
 	// Structures to hold unique models and instances
 	std::vector<Model> uniqueModels; //Contiene solo i modelli unici
@@ -100,12 +99,7 @@ int main()
 			modelIndex = uniqueModels.size() - 1;
 			modelPathMap[path] = modelIndex;
 		}
-
-		if (path.find("flame.obj") != std::string::npos) {
-			flameModelIndex = modelIndex;
-		}
-
-		// Compute model matrix
+		// Crea la model matrix
 		Mat4 model = Mat4();
 
 		float tx = stof(model_node->first_node("translatex")->value());
@@ -161,11 +155,11 @@ int main()
 
 	 //---------------------------SHADOWMAPS-------------------------------------//
 
-	//create a framebuffer object for rendering the depth map:
+	//Creiamo un Framebuffer Object per la depth map
 	GLuint depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
 
-	//create a 2D texture that we'll use as the framebuffer's depth buffer:
+	//creiamo una texture che diventerà la depthmap:
 	unsigned int shadowWidth = 4096, shadowHeight = 4096;
 
 	GLuint depthMap;
@@ -180,7 +174,7 @@ int main()
 	float clampColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
 
-	//attach the texture as the framebuffer's depth buffer:
+	//Bindiamo la texture al framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 	glDrawBuffer(GL_NONE);
@@ -197,64 +191,8 @@ int main()
 	Shader frustumShader = Shader("frustum.vert", "frustum.frag");
 
 	//---------------------------------------------------------------//
-
-	//-----------------------SHADOWMAP POINT LIGHTS------------------//
-
-	Shader shadowCubeMapProgram("shadowCubeMap.vert", "shadowCubeMap.frag", "shadowCubeMap.geom");
-
-	unsigned int pointShadowMapFBO;
-	glGenFramebuffers(1, &pointShadowMapFBO);
-
-	unsigned int depthCubemap;
-	glGenTextures(1, &depthCubemap);
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-	for (unsigned int i = 0; i < 6; i++)
-	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, pointShadowMapFBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	Mat4 shadowProj = Mat4().perspective(90.0f, 1.0f, 0.1f, 100.0f);
-	Mat4 shadowTransforms[] =
-	{
-		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
-		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(-1.0f,0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
-		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f,  0.0f, 1.0f)),
-		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, -1.0f, 0.0f), Vec3(0.0f, 0.0f,-1.0f)),
-		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, 0.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f)),
-		shadowProj* Mat4().lookAt(lightPos, lightPos + Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, -1.0f, 0.0f))
-	};
-
-	shadowCubeMapProgram.UseProgram();
-	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[0]"), 1, GL_FALSE, shadowTransforms[0].value_ptr());
-	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[1]"), 1, GL_FALSE, shadowTransforms[1].value_ptr());
-	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[2]"), 1, GL_FALSE, shadowTransforms[2].value_ptr());
-	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[3]"), 1, GL_FALSE, shadowTransforms[3].value_ptr());
-	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[4]"), 1, GL_FALSE, shadowTransforms[4].value_ptr());
-	glUniformMatrix4fv(glGetUniformLocation(shadowCubeMapProgram.ID, "shadowMatrices[5]"), 1, GL_FALSE, shadowTransforms[5].value_ptr());
-	glUniform3f(glGetUniformLocation(shadowCubeMapProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-	glUniform1f(glGetUniformLocation(shadowCubeMapProgram.ID, "farPlane"), 100.0f);
-
-	//-------------------------------------------------------------------//
-
-	Vec3 flamePos1 = Vec3(0.7f, - 1.8f, 0.2f); // Posizione della prima point light
-	Vec3 flamePos2 = Vec3(0.7f, -1.8f, - 0.3f); // Posizione della seconda point light
-	Vec3 flamePos3 = Vec3(-0.9f, -1.8f, 0.2f); // Posizione della terza point light
-	Vec3 flamePos4 = Vec3(-0.9f, -1.8f, -0.3f); // Posizione della quarta point light
-	Vec4 flameLightColor =  Vec4(1.0f, 0.6f, 0.2f, 1.0f); // Colore (arancione)
 	
-	// Quad vertices and indices (bottom-left corner)
+	// Vertici e indici per il quadrato
 	float quadVertices[] = {
 		// Positions    // TexCoords
 		-1.0f, -1.0f,  0.0f, 0.0f,
@@ -346,8 +284,10 @@ int main()
 		glClearColor(0.25f, 0.25f, 0.50f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		camera.inputs(window);
+		camera.inputs(window, xmin, xmax, zmin, zmax);
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
+
+		std::cout << camera.Position << std::endl;
 
 		//SKYBOX
 		glDepthFunc(GL_LEQUAL);
@@ -419,35 +359,28 @@ int main()
 		
 
 		// Passa i parametri della point light allo shader
-		program1.UseProgram();
-		glUniform3f(glGetUniformLocation(program1.ID, "flamePos1"), flamePos1.x, flamePos1.y, flamePos1.z);
-		glUniform3f(glGetUniformLocation(program1.ID, "flamePos2"), flamePos2.x, flamePos2.y, flamePos2.z);
-		glUniform3f(glGetUniformLocation(program1.ID, "flamePos3"), flamePos3.x, flamePos3.y, flamePos3.z);
-		glUniform3f(glGetUniformLocation(program1.ID, "flamePos4"), flamePos4.x, flamePos4.y, flamePos4.z);
-		glUniform4f(glGetUniformLocation(program1.ID, "flameLightColor"), flameLightColor.x, flameLightColor.y, flameLightColor.z, flameLightColor.w);
+		////// Draw the light's view frustum (shadow map)
+		//frustumShader.UseProgram();
+		//camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
+		//Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
+		//drawFrustum(lightProjection, lightFrustumColor, frustumShader);
 
-		//// Draw the light's view frustum (shadow map)
-		frustumShader.UseProgram();
-		camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
-		Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
-		drawFrustum(lightProjection, lightFrustumColor, frustumShader);
+		////// Render shadow map quad
+		//glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
+		//quadShader.UseProgram();
 
-		//// Render shadow map quad
-		glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
-		quadShader.UseProgram();
+		//// Bind the depth map texture to texture unit 0
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, depthMap);
+		//glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
 
-		// Bind the depth map texture to texture unit 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
+		//// Draw quad
+		//glBindVertexArray(quadVAO);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glBindVertexArray(0);
 
-		// Draw quad
-		glBindVertexArray(quadVAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
-		glEnable(GL_DEPTH_TEST); // Re-enable depth test
-		//glStencilFunc(GL_EQUAL, 1, 0x00);
+		//glEnable(GL_DEPTH_TEST); // Re-enable depth test
+		////glStencilFunc(GL_EQUAL, 1, 0x00);
 
 		glfwSwapBuffers(window);
 

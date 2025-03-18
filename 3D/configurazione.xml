@@ -2,10 +2,19 @@
 
 <Root>
 	<window>
-		<width>1080</width>
-		<height>720</height>
+		<width>1920</width>
+		<height>1080</height>
 	</window>
 
+	<collider>
+		<xmin>-1.8</xmin>
+		<xmax>1.7</xmax>
+		<zmin>-0.18</zmin>
+		<zmax>0.09</zmax>
+	</collider>
+	
+	
+	
 	<model id="A">
 
 		<name>cazzo</name>
