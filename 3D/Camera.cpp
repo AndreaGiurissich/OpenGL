@@ -31,42 +31,53 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 }
 
 
-void Camera::inputs(GLFWwindow* window)
+void Camera::inputs(GLFWwindow* window, float xmin, float xmax, float zmin, float zmax)
 {
 	Vec3 v = (Orientation.cross(Up));
 	v.normalize();
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	{
-		Position += Orientation * speed;
+	currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+	cameraSpeed = speed * deltaTime;
+
+	Position.y = -1.7f;
+
+	if (checkCollision(xmin, xmax, zmin, zmax)){
+		PrevPos = Position;
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			Position += Orientation * cameraSpeed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			Position -= ( v * cameraSpeed);
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			Position -= (Orientation * cameraSpeed);
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			Position += v * cameraSpeed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			Position += Up * cameraSpeed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		{
+			Position -= Up * cameraSpeed;
+		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	else
 	{
-		Position -= ( v * speed);
+		Position = PrevPos;
 	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		Position -= (Orientation * speed);
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		Position += v * speed;
-	}
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		Position += Up * speed;
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-	{
-		Position -= Up * speed;
-	}
+
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
-		speed = 0.04f;
-	}
-	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-	{
-		speed = 0.01f;
+		cameraSpeed = 0.04f;
 	}
 
 
@@ -118,4 +129,12 @@ void Camera::inputs(GLFWwindow* window)
 		// Makes sure the next time the camera looks around it doesn't jump
 		firstClick = true;
 	}
+}
+
+bool Camera::checkCollision(float xmin, float xmax, float zmin, float zmax)
+{
+	if (Position.x >= xmin && Position.x <= xmax && Position.z >= zmin && Position.z <= zmax) {
+		return true;
+	}
+	else return false;
 }
