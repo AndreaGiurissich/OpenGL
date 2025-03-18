@@ -21,8 +21,6 @@ int samples = 8;
 
 //caricamento modelli 3d
 void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::vector<std::pair<int, Mat4>> instances);
-void drawFrustum(Mat4 projectionViewMatrix, const Vec4& color, Shader& shader);
-Vec4 calculateLightColor(float angle, Vec4 lightColor);
 
 int main()
 {
@@ -77,7 +75,7 @@ int main()
 
 	glEnable(GL_MULTISAMPLE);
 
-	// Structures to hold unique models and instances
+	// Strutture per contenere i modelli e le istanze
 	std::vector<Model> uniqueModels; //Contiene solo i modelli unici
 	std::map<std::string, int> modelPathMap; // Dizionario per mappare i path dei modelli con i loro indici (nel vettore uniqueModels)
 	std::vector<std::pair<int, Mat4>> instances; // Stora le istanze dei modelli in un paio ([indice in uniqueModels, Mat trasform dell'istanza])
@@ -230,14 +228,14 @@ int main()
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// Variables to create periodic event for FPS displaying
+	// Variabili per il calcolo del tempo
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double currentTick = 0.0;
 	double timeDiff;
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
-	float angle = -30.0f;
+	float angle = 0.0f;
 	glfwSwapInterval(1);
 
 	
@@ -252,6 +250,7 @@ int main()
 		currentTick += timeDiff * 240.0f;
 		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
 		angle = timeOfDay * 360.0f;
+		angle -= 70.0f;
 
 		std::cout << angle << std::endl;
 
@@ -271,9 +270,6 @@ int main()
 			// Use this if you have disabled VSync
 			//camera.inputs(window);
 		}
-
-
-		//std::cout << ortoProjection << std::endl;
 
 		Mat3 rotation = Mat3().rotation(angle, Vec3(0.0f, 1.0f, 0.0f));
 		Vec3 lightDirection = rotation * (lightPos * -7.0f);
@@ -298,7 +294,7 @@ int main()
 		Mat4 rotationM = Mat4();
 		view = view.lookAtCubemap(camera.Position, camera.Position + camera.Orientation, camera.Up);
 		projection = projection.perspective(120.0, (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
-		//rotationM = rotationM.rotation(angle, Vec3(0.0f, 0.0f, 1.0f));
+
 		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "view"), 1, GL_TRUE, view.value_ptr());
 		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "projection"), 1, GL_FALSE, projection.value_ptr());
 		glUniformMatrix4fv(glGetUniformLocation(skyboxprogram.ID, "rotation"), 1, GL_FALSE, rotationM.value_ptr());
@@ -308,18 +304,19 @@ int main()
 
 		glDepthFunc(GL_LESS);
 		//-----------------------------
+
 		glCullFace(GL_FRONT);
 		shadowMapProgram.UseProgram();
 
 		GLuint lightProjectionLoc = glGetUniformLocation(shadowMapProgram.ID, "lightProjection");
 		glUniformMatrix4fv(lightProjectionLoc, 1, GL_FALSE, lightProjection.value_ptr());
-		// Set lightProjection matrix each frame (in case it changes)
+		// Setta la lightProjection uniform che cambia in base all'angolo
 
 		glViewport(0, 0, shadowWidth, shadowHeight);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		// Render all instances with their model matrices
+		// Renderizza tutti i modellli per creare la shadow map
 		for (const auto& instance : instances) {
 			int modelIndex = instance.first;
 			const Mat4& modelMatrix = instance.second;
@@ -329,18 +326,17 @@ int main()
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glCullFace(GL_BACK);
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); // Reset viewport for main rendering
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); // Resetta il viewport per il rendering normale
 
 
-		program1.UseProgram(); //quale shaderprogram usare
+		// Render modelli
+		program1.UseProgram();
 		glUniform3f(glGetUniformLocation(program1.ID, "lightDirection"), lightDirection.x, lightDirection.y, lightDirection.z);
 		glUniformMatrix4fv(glGetUniformLocation(program1.ID, "lightProjection"), 1, GL_FALSE, lightProjection.value_ptr());
 
-		// Passiamo the angle directly to the shader instead of calculating light color in C++
+		// Passiamo l'angolo allo shader
 		glUniform1f(glGetUniformLocation(program1.ID, "angle"), angle);
 
-
-		// Bind the Shadow Map
 		glActiveTexture(GL_TEXTURE0 + 3);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glUniform1i(glGetUniformLocation(program1.ID, "shadowMap"), 3);
@@ -351,36 +347,8 @@ int main()
 		glUniform3f(shaderUniformLoc4, camera.Position.x, camera.Position.y, camera.Position.z);
 
 		camera.Matrix(program1, "camMatrix");
-	
-		////glStencilMask(0xFF); 
 
 		modelsLoading(program1, uniqueModels, instances);
-
-		
-
-		// Passa i parametri della point light allo shader
-		////// Draw the light's view frustum (shadow map)
-		//frustumShader.UseProgram();
-		//camera.Matrix(frustumShader, "camMatrix"); // Set the view-projection matrix
-		//Vec4 lightFrustumColor = Vec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow color for light frustum
-		//drawFrustum(lightProjection, lightFrustumColor, frustumShader);
-
-		////// Render shadow map quad
-		//glDisable(GL_DEPTH_TEST); // Disable depth test so quad draws on top
-		//quadShader.UseProgram();
-
-		//// Bind the depth map texture to texture unit 0
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//glUniform1i(glGetUniformLocation(quadShader.ID, "depthMap"), 0);
-
-		//// Draw quad
-		//glBindVertexArray(quadVAO);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		//glBindVertexArray(0);
-
-		//glEnable(GL_DEPTH_TEST); // Re-enable depth test
-		////glStencilFunc(GL_EQUAL, 1, 0x00);
 
 		glfwSwapBuffers(window);
 
@@ -388,12 +356,13 @@ int main()
 
 	}
 
-	// Delete all the objects we've created
+	// Canvella i programmi
 	program1.Delete();
+	shadowMapProgram.Delete();
+	skyboxprogram.Delete();
 
-	// Delete window before ending the program
+	// Cancella la finestra e termina GLFW prima di chiudere il programma
 	glfwDestroyWindow(window);
-	// Terminate GLFW before ending the program
 	glfwTerminate();
 	return 0;
 }
@@ -407,115 +376,4 @@ void modelsLoading(Shader shaderProgram, std::vector<Model> uniqueModels, std::v
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_TRUE, modelMatrix.value_ptr());
 		uniqueModels[modelIndex].Draw(shaderProgram);
 	}
-}
-
-// Function to update light color based on angle
-Vec4 calculateLightColor(float angle, Vec4 lightColor)
-{
-	
-
-	if (angle >= 0.0f && angle <= 45.0f) {
-		float t = (angle - 0.0f) / 45.0f; // Normalize angle to range [0, 1]
-		lightColor = Vec4(1.0f, 1.0f - 0.6 * t , 1.0f - t, 1.0f); // Da bianco a rosso
-	}
-
-	if (angle >= 230.0f && angle <= 275.0f) {
-		float t = (angle - 230.0f) / 45.0f; // Normalize angle to range [0, 1]
-		lightColor = Vec4(1.0f, 0.8 + 0.2 * t, 0.0f + t, 1.0f); //Da rosso a bianco
-	}
-
-
-	return lightColor;
-}
-
-struct FrustumVertex {
-	Vec3 position;
-};
-
-// Function to draw a frustum outline based on a projection-view matrix
-void drawFrustum(Mat4 projectionViewMatrix, const Vec4& color, Shader& shader) {
-	// Define the 8 corners in normalized device coordinates (-1 to 1 cube)
-	// For OpenGL, the NDC has z from -1 (near) to 1 (far)
-	Vec4 frustumCornersNDC[8] = {
-		// Near plane (z = -1)
-		Vec4(-1.0f, -1.0f, -1.0f, 1.0f), // bottom-left-near
-		Vec4(1.0f, -1.0f, -1.0f, 1.0f), // bottom-right-near
-		Vec4(1.0f,  1.0f, -1.0f, 1.0f), // top-right-near
-		Vec4(-1.0f,  1.0f, -1.0f, 1.0f), // top-left-near
-
-		// Far plane (z = 1)
-		Vec4(-1.0f, -1.0f,  1.0f, 1.0f), // bottom-left-far
-		Vec4(1.0f, -1.0f,  1.0f, 1.0f), // bottom-right-far
-		Vec4(1.0f,  1.0f,  1.0f, 1.0f), // top-right-far
-		Vec4(-1.0f,  1.0f,  1.0f, 1.0f)  // top-left-far
-	};
-
-	// Calculate the inverse of the projection-view matrix
-	Mat4 inverseMatrix = projectionViewMatrix.inversa();
-
-	// Transform corners from NDC to world space
-	Vec3 frustumCornersWorld[8];
-	for (int i = 0; i < 8; i++) {
-		// Transform to world space
-		Vec4 worldHomogeneous = inverseMatrix * frustumCornersNDC[i];
-
-		// Perform perspective divide
-		frustumCornersWorld[i] = Vec3(
-			worldHomogeneous.x / worldHomogeneous.w,
-			worldHomogeneous.y / worldHomogeneous.w,
-			worldHomogeneous.z / worldHomogeneous.w
-		);
-	}
-
-	// Define the 12 edges of the frustum (indices of frustumCornersWorld)
-	unsigned int edges[12][2] = {
-		{0, 1}, {1, 2}, {2, 3}, {3, 0},  // Near plane edges
-		{4, 5}, {5, 6}, {6, 7}, {7, 4},  // Far plane edges
-		{0, 4}, {1, 5}, {2, 6}, {3, 7}   // Connecting edges
-	};
-
-	// Create vertices for the lines
-	std::vector<FrustumVertex> vertices;
-	for (int i = 0; i < 12; i++) {
-		FrustumVertex v1 = { frustumCornersWorld[edges[i][0]] };
-		FrustumVertex v2 = { frustumCornersWorld[edges[i][1]] };
-		vertices.push_back(v1);
-		vertices.push_back(v2);
-	}
-
-	// Create VAO, VBO
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(FrustumVertex), vertices.data(), GL_STATIC_DRAW);
-
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FrustumVertex), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// Use the provided shader
-	shader.UseProgram();
-
-	// Set the color uniform
-	GLint colorLoc = glGetUniformLocation(shader.ID, "lineColor");
-	glUniform4f(colorLoc, color.x, color.y, color.z, color.w);
-
-	// Set model matrix to identity (already in world space)
-	Mat4 identity = Mat4();
-	GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, identity.value_ptr());
-
-	// Draw the frustum as lines
-	glLineWidth(2.0f);
-	glDrawArrays(GL_LINES, 0, vertices.size());
-	glLineWidth(1.0f);
-
-	// Clean up
-	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
 }

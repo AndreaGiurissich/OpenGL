@@ -6,10 +6,10 @@
 class Camera
 {
 public:
-	// Stores the main vectors of the camera
+
 	Vec3 Position, PrevPos;
 	Vec3 Up = Vec3(0.0f, 1.0f, 0.0f);
-	Vec3 Orientation = Vec3(0.0f, 0.0f, -1.0f);
+	Vec3 Orientation = Vec3(-1.0f, 0.0f, 0.0f);
 	Mat4 cameraMatrix = Mat4(1.0f);
 
 
@@ -25,7 +25,7 @@ public:
 	//current frame
 	float currentFrame = 0.0f;
 
-	// Prevents the camera from jumping around when first clicking left click
+	// Evita di far spostare la camera con il primo click
 	bool firstClick = true;
 
 	// Memorizza la larghezza ed altezza della finestra
@@ -42,8 +42,8 @@ public:
 	void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
 	// Esportare la matrice della camera allo shader
 	void Matrix(Shader& shader, const char* uniform);
-	// Handles camera inputs
+	// Gestisce il movimento della camera
 	void inputs(GLFWwindow* window, float xmin, float xmax, float zmin, float zmax);
-
+	// Gestisce le collisioni della camera
 	bool checkCollision(float xmin, float xmax, float zmin, float zmax);
 };
