@@ -9,7 +9,7 @@ class Skybox
 	//Cubemap
 
 	float skyboxVertices[24] = {
-		// positions          
+		// Posizioni          
 		-1.0f,  -1.0f, 1.0f,
 		1.0f, -1.0f, 1.0f,
 		1.0f, -1.0f, -1.0f,
@@ -21,22 +21,22 @@ class Skybox
 	};
 
 	int skyboxIndices[36] = {
-		// Right
+		// Destra
 			1, 2, 6,
 			6, 5, 1,
-			// Left
+			// Sinistra
 			0, 4, 7,
 			7, 3, 0,
-			// Top
+			// Sopra
 			4, 5, 6,
 			6, 7, 4,
-			// Bottom
+			// Sotto
 			0, 3, 2,
 			2, 1, 0,
-			// Back
+			// Dietro
 			0, 1, 5,
 			5, 4, 0,
-			// Front
+			// Di fronte
 			3, 7, 6,
 			6, 2, 3
 

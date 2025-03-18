@@ -29,19 +29,19 @@ uniform vec3 camPos;
 float near = 0.1; 
 float far  = 100.0; 
 
-// Calculate light color based on angle
+// Calcola il colore della luce in base all'angolo
 vec4 calculateLightColor()
 {
-    vec4 computedLightColor; // Default white light
+    vec4 computedLightColor;  // Luce bianca di default
     vec4 lastcomputedLightColor;
 
     if (angle >= 0.0 && angle <= 45.0) {
-        float t = (angle - 0.0) / 45.0; // Normalize angle to range [0, 1]
-        computedLightColor = vec4(1.0, 1.0 - 0.6 * t, 1.0 - t, 1.0); // White to red
+        float t = (angle - 0.0) / 45.0; // Normalizza l'angolo al range [0, 1]
+        computedLightColor = vec4(1.0, 1.0 - 0.6 * t, 1.0 - t, 1.0); // White to red // Passa da bianco a rosso
     }
     else if (angle >= 230.0 && angle <= 275.0) {
-        float t = (angle - 230.0) / 45.0; // Normalize angle to range [0, 1]
-        computedLightColor = vec4(1.0, 0.6 + 0.4 * t, 0.0 + t, 1.0); // Red to white
+        float t = (angle - 230.0) / 45.0; 	// Normalizza l'angolo al range [0, 1]
+        computedLightColor = vec4(1.0, 0.6 + 0.4 * t, 0.0 + t, 1.0); 	//Passa da rosso a bianco
     }
 	else if (angle >= 45.0f && angle <= 230.0f) 
 	{
@@ -53,20 +53,20 @@ vec4 calculateLightColor()
 			if (angle <= 137.5f) 
 			{
 				// Prima metà notte: 45° to 137.5°
-				alpha = (angle - 45.0f) / 92.5f; // Normalized to 0-1
+				alpha = (angle - 45.0f) / 92.5f; // Normalizza a 0-1
 				finalLightColor = mix(vec4(1.0, 0.4, 0.0, 1.0), nightColor, alpha);
 				return finalLightColor;
 			}
 			else 
 			{
 				// Seconda metà notte: 137.5° to 230°
-				alpha = (230.0f - angle) / 92.5f; // Normalized to 1-0
+				alpha = (230.0f - angle) / 92.5f; // Normalizza to 1-0
 				finalLightColor = mix(vec4(1.0, 0.7, 0.0, 1.0), nightColor, alpha);
 				return finalLightColor;
 			}
 
 
-	}else computedLightColor = vec4(1.0, 1.0, 1.0, 1.0); // Default white light
+	}else computedLightColor = vec4(1.0, 1.0, 1.0, 1.0); // Luce bianca di default
 
     return computedLightColor;
 }
@@ -93,19 +93,20 @@ vec4 pointLight(vec3 flameLightPos) {
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
-    // perform perspective divide
+	//Esegue la divisione prospettica
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
+	// trasforma il range a [0, 1]
     projCoords = projCoords * 0.5 + 0.5;
 	if(projCoords.x < 0.0 || projCoords.x > 1.0 || 
        projCoords.y < 0.0 || projCoords.y > 1.0 ||
        projCoords.z < 0.0 || projCoords.z > 1.0)
     {
-        return 0.0; // Not in shadow if outside shadow map
+        return 0.0;	//Non è in ombra quando è fuori dalla shadow map
     }
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	// Ottiene il valore della profondità più vicino dalla prospettiva della luce (utilizzando [0,1] range fragPosLight come coordinate)
+
     float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
+	// Ottiene la profondità del frammento corrente dalla prospettiva della luce
     float currentDepth = projCoords.z;
 
 	// PCF with 3x3 kernel
@@ -124,10 +125,11 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 
 vec4 direcLight()
 {
-	//ambient lighting
+	// Luce ambientale
 	float ambient = 0.30f;
 
 	//diffuse lighting
+
 	vec3 normal = normalize(Normal);
 	vec3 lightDirection = normalize(lightDirection);
 	vec3 lightDirectionMir = vec3(lightDirection.x, -lightDirection.y, lightDirection.z);

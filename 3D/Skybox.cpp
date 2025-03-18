@@ -7,9 +7,12 @@
 Skybox::Skybox(std::string facesCubemap[6])
 {
 	//VAO - VBO - EBO
+	// Genera e associa VAO - VBO - EBO per lo skybox
 	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
 	glGenBuffers(1, &skyboxEBO);
+
+	// Associa VAO, associa e carica VBO - EBO i dati dei vertici 
 	glBindVertexArray(skyboxVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
@@ -21,8 +24,9 @@ Skybox::Skybox(std::string facesCubemap[6])
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// cubemap texture object
+	// Imposta la cubemap texture e genera una texture object per la cubemap
 	glGenTextures(1, &cubemapTexture);
+	// Imposta i parametri della texture per la cubemap
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -30,7 +34,7 @@ Skybox::Skybox(std::string facesCubemap[6])
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	// Cycles through all the textures and attaches them to the cubemap object
+	// Ciclo attraverso tutte le textures e li collega all'oggetto della cubemap
 	for (unsigned int i = 0; i < 6; i++)
 	{
 		int width, height, nrChannels;
@@ -54,6 +58,6 @@ void Skybox::BindVAO() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+	glBindVertexArray(0);		// Scollega il VAO dopo il rendering
 }
 
