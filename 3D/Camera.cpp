@@ -11,22 +11,22 @@ Camera::Camera(float width, float height, Vec3 position)
 
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 {
-	// Initializes matrices since otherwise they will be the null matrix
+	// Inizializza le matrici altrimenti saranno la matrice nulla
 	Mat4 view = Mat4();
 	Mat4 projection = Mat4();
 
-	// Makes camera look in the right direction from the right position
+	// Fa sì che la camera guardi nella giusta direzione dalla giusta posizione
 	view = view.lookAt(Position, Position + Orientation, Up);
-	// Adds perspective to the scene
+	// Aggiunge la prospettiva alla scena 
 	projection = projection.perspective(FOVdeg, width/height, nearPlane, farPlane);
 
-	// Sets new camera matrix
+	// Imposta una nuova matrice della camera
 	cameraMatrix = projection * view;
 }
 
 void Camera::Matrix(Shader& shader, const char* uniform)
 {
-	// Exports the camera matrix to the Vertex Shader
+	// Esporta la matrice della camera alla Vertex Shader
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_TRUE, &cameraMatrix.m[0][0]);
 }
 
@@ -81,52 +81,52 @@ void Camera::inputs(GLFWwindow* window, float xmin, float xmax, float zmin, floa
 	}
 
 
-	// Handles mouse inputs
+	// Gestisce gli input del mouse
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		// Hides mouse cursor
+		// Nasconde il cursore del mouse
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-		// Prevents camera from jumping on the first click
+		// Impedisce alla camera di saltare al primo clic
 		if (firstClick)
 		{
 			glfwSetCursorPos(window, (width / 2), (height / 2));
 			firstClick = false;
 		}
 
-		// Stores the coordinates of the cursor
+		// Memorizza le coordinate del cursore
 		double mouseX;
 		double mouseY;
-		// Fetches the coordinates of the cursor
+		// Recupera le coordinate del cursore
 		glfwGetCursorPos(window, &mouseX, &mouseY);
 
-		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
-		// and then "transforms" them into degrees 
+		// Normalizza e sposta le coordinate del cursore in modo che inizino al centro dello schermo
+		// e poi li "trasforma" in gradi
 		float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
 		float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 
-		// Calculates upcoming vertical change in the Orientation
+		// Calcola il prossimo cambiamento verticale nell'orientamento
 		Vec3 v1 = Orientation.cross(Up);
 		v1.normalize();
 		Vec3 newOrientation = Orientation.rotate(-rotX, v1);
 
-		// Decides whether or not the next vertical Orientation is legal or not
+		// Decide se il prossimo orientamento verticale è valido o meno, evita il gimbal lock
 		if (abs(newOrientation.angle(Up) - 90.0f) <= 85.0f)
 		{
 			Orientation = newOrientation;
 		}
 		
-		// Rotates the Orientation left and right
+		// Ruota l'orientamento da sinistra a destra
 		Orientation = Orientation.rotate(-rotY, Up);
 
-		// Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
+		// Imposta il cursore del mouse al centro dello schermo in modo che non finisca per vagare
 		glfwSetCursorPos(window, (width / 2), (height / 2));
 	}
 	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
 	{
-		// Unhides cursor since camera is not looking around anymore
+		// Mostra il cursore da quando la camera non si guarda più intorno
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		// Makes sure the next time the camera looks around it doesn't jump
+		// Assicura che la prossima volta che la camera si guarda intorno non si muove
 		firstClick = true;
 	}
 }

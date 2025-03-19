@@ -22,6 +22,7 @@ public:
 
     Model(string const& path, string invertUV, bool gamma = false) : gammaCorrection(gamma)
     {
+        // Carica il modello con o senza inversione UV in base al parametro `invertUV`
         if(invertUV == "false")
     		loadModel(path, false);
         else 

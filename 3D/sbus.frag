@@ -35,15 +35,15 @@ vec4 calculateLightColor()
     vec4 computedLightColor;  // Luce bianca di default
     vec4 lastcomputedLightColor;
 
-    if (angle >= 0.0 && angle <= 45.0) {
-        float t = (angle - 0.0) / 45.0; // Normalizza l'angolo al range [0, 1]
+    if (angle >= 0.0 && angle <= 30.0) {
+        float t = (angle - 0.0) / 30.0; // Normalizza l'angolo al range [0, 1]
         computedLightColor = vec4(1.0, 1.0 - 0.6 * t, 1.0 - t, 1.0); // White to red // Passa da bianco a rosso
     }
-    else if (angle >= 230.0 && angle <= 275.0) {
-        float t = (angle - 230.0) / 45.0; 	// Normalizza l'angolo al range [0, 1]
+    else if (angle >= 245.0 && angle <= 275.0) {
+        float t = (angle - 245.0) / 30.0; 	// Normalizza l'angolo al range [0, 1]
         computedLightColor = vec4(1.0, 0.6 + 0.4 * t, 0.0 + t, 1.0); 	//Passa da rosso a bianco
     }
-	else if (angle >= 45.0f && angle <= 230.0f) 
+	else if (angle >= 30.0f && angle <= 245.0f) 
 	{
 		vec4 nightColor = vec4(0.2, 0.3, 0.6, 1.0);
 		vec4 finalLightColor;
@@ -52,18 +52,20 @@ vec4 calculateLightColor()
 
 			if (angle <= 137.5f) 
 			{
-				// Prima metà notte: 45° to 137.5°
-				alpha = (angle - 45.0f) / 92.5f; // Normalizza a 0-1
+				// Prima metà notte: 30° to 107.5°
+				alpha = (angle - 30.0f) / 137.5f; // Normalizza a 0-1
 				finalLightColor = mix(vec4(1.0, 0.4, 0.0, 1.0), nightColor, alpha);
 				return finalLightColor;
 			}
-			else 
+			else if (angle > 137.5f) 
 			{
-				// Seconda metà notte: 137.5° to 230°
-				alpha = (230.0f - angle) / 92.5f; // Normalizza to 1-0
-				finalLightColor = mix(vec4(1.0, 0.7, 0.0, 1.0), nightColor, alpha);
+				// Seconda metà notte: 107.5° to 245°
+				alpha = (245.0f - angle) / 137.5f; // Normalizza to 1-0
+				finalLightColor = mix(vec4(1.0, 0.6, 0.0, 1.0), nightColor, alpha);
 				return finalLightColor;
 			}
+			
+
 
 
 	}else computedLightColor = vec4(1.0, 1.0, 1.0, 1.0); // Luce bianca di default

@@ -36,9 +36,6 @@
     <ClCompile Include="EBO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -68,13 +65,7 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="EBO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gl.h">
