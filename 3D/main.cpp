@@ -40,11 +40,11 @@ int main()
 	const unsigned int SCR_WIDTH = atoi(root_node->first_node("window")->first_node("width")->value());
 	const unsigned int SCR_HEIGHT = atoi(root_node->first_node("window")->first_node("height")->value());
 
-	//Collider da XML
-	float xmax = stof(root_node->first_node("collider")->first_node("xmax")->value());
-	float xmin = stof(root_node->first_node("collider")->first_node("xmin")->value());
-	float zmax = stof(root_node->first_node("collider")->first_node("zmax")->value());
-	float zmin = stof(root_node->first_node("collider")->first_node("zmin")->value());
+	//Bounding box da XML
+	float xmax = stof(root_node->first_node("BoundingBox")->first_node("xmax")->value());
+	float xmin = stof(root_node->first_node("BoundingBox")->first_node("xmin")->value());
+	float zmax = stof(root_node->first_node("BoundingBox")->first_node("zmax")->value());
+	float zmin = stof(root_node->first_node("BoundingBox")->first_node("zmin")->value());
 
 
 	Camera camera(SCR_WIDTH, SCR_HEIGHT, Vec3(1.0f, 0.0f, 0.0f));
@@ -185,12 +185,9 @@ int main()
 	Mat4 ortho = Mat4().ortho(-4.0f, 4.0f, -4.0, 4.0, 1.5f, 5.5f);
 	std::cout << ortho << std::endl;
 
-
-	Shader frustumShader = Shader("frustum.vert", "frustum.frag");
-
-	//---------------------------------------------------------------//
+	//-----------------------------QUAD per DEPTHMAP----------------------------------//
 	
-	// Vertici e indici per il quadrato
+	// Vertici e indici per il quadrato per debugging
 	float quadVertices[] = {
 		// Positions    // TexCoords
 		-1.0f, -1.0f,  0.0f, 0.0f,
@@ -226,7 +223,7 @@ int main()
 
 	//-------------------------------------------------------------------------//
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 
 	// Variabili per il calcolo del tempo
 	double prevTime = 0.0;
@@ -236,8 +233,10 @@ int main()
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
 	float angle = 0.0f;
-	glfwSwapInterval(1);
 
+
+	glfwSwapInterval(1);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); wireframe mode
 	
 
 	//----------CICLO DI RENDERING----------
@@ -247,28 +246,27 @@ int main()
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
 
-		currentTick += timeDiff * 240.0f;
-		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f;
+		currentTick += timeDiff * 240.0f; //Accumula il tempo trascorso con un fattore di moltiplicazione (240)
+		float timeOfDay = fmod(currentTick, 24000.0f) / 24000.0f; //restituisce il resto della divisione tra currentTick e 24000 (rappresentante un ciclo giorno/notte completo)
 		angle = timeOfDay * 360.0f;
 		angle -= 70.0f;
 
-		std::cout << angle << std::endl;
+		//stampa angolo
+		//std::cout << angle << std::endl;
 
 		counter++;
 		
-		if (timeDiff >= 1.0 / 30.0)
+		if (timeDiff >= 1.0 / 60.0)
 		{
-			// Creates new title
+			// Nuovo titolo
 			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 			std::string ms = std::to_string((timeDiff / counter) * 1000);
-			std::string newTitle = "POG - " + FPS + "FPS / " + ms + "ms";
+			std::string newTitle = "Sponza - " + FPS + "FPS / " + ms + "ms";
 			glfwSetWindowTitle(window, newTitle.c_str());
 
 			// Resets times and counter
 			prevTime = crntTime;
 			counter = 0;
-			// Use this if you have disabled VSync
-			//camera.inputs(window);
 		}
 
 		Mat3 rotation = Mat3().rotation(angle, Vec3(0.0f, 1.0f, 0.0f));

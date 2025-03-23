@@ -43,7 +43,7 @@ void Camera::inputs(GLFWwindow* window, float xmin, float xmax, float zmin, floa
 
 	Position.y = -1.7f;
 
-	if (checkCollision(xmin, xmax, zmin, zmax)){
+	if (checkPosition(xmin, xmax, zmin, zmax)){
 		PrevPos = Position;
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
@@ -131,7 +131,7 @@ void Camera::inputs(GLFWwindow* window, float xmin, float xmax, float zmin, floa
 	}
 }
 
-bool Camera::checkCollision(float xmin, float xmax, float zmin, float zmax)
+bool Camera::checkPosition(float xmin, float xmax, float zmin, float zmax)
 {
 	if (Position.x >= xmin && Position.x <= xmax && Position.z >= zmin && Position.z <= zmax) {
 		return true;

@@ -366,33 +366,6 @@ Mat4 Mat4::perspective(float fov, float aspect, float near, float far) {
 	return *this * result;
 }
 
-Mat4 Mat4::orthographic(float fov, float aspect, float near, float far) {
-
-	Mat4 result;
-
-	float yScale = 1.0 / near * (tan((M_PI / 180) * fov / 2));
-	float xScale = yScale / aspect;
-
-	result.m[0][0] = xScale;
-	result.m[0][1] = 0.0f;
-	result.m[0][2] = 0.0f;
-	result.m[0][3] = 0.0f;
-	result.m[1][0] = 0.0f;
-	result.m[1][1] = yScale;
-	result.m[1][2] = 0.0f;
-	result.m[1][3] = 0.0f;
-	result.m[2][0] = 0.0f;
-	result.m[2][1] = 0.0f;
-	result.m[2][2] = 2.0f / (near - far);
-	result.m[2][3] = (far + near) / (near - far);
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
-
-	return *this * result;
-}
-
 Mat4 Mat4::ortho(float left, float right, float bottom, float top, float near, float far) {
 	Mat4 result;
 

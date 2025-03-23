@@ -16,12 +16,6 @@ uniform vec4 lightColor;
 uniform vec3 lightDirection;
 uniform vec3 lightPos;
 
-uniform vec3 flamePos1;
-uniform vec3 flamePos2;
-uniform vec3 flamePos3;
-uniform vec3 flamePos4;
-uniform vec4 flameLightColor;
-
 uniform float angle;
 
 uniform vec3 camPos;
@@ -73,8 +67,8 @@ vec4 calculateLightColor()
     return computedLightColor;
 }
 
-vec4 pointLight(vec3 flameLightPos) {
-    vec3 lightVec = flameLightPos - crntPos;
+vec4 pointLight() {
+    vec3 lightVec = lightPos - crntPos;
     float dist = length(lightVec);
     float attenuation = 0.2f;
 
@@ -83,14 +77,20 @@ vec4 pointLight(vec3 flameLightPos) {
     vec3 lightDir = normalize(lightVec);
     float diffuse = max(dot(normal, lightDir), 0.0);
 
-    // Specular
-    vec3 viewDir = normalize(camPos - crntPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.5), 32.0);
-    float specular = spec * 0.5;
+    // specular lighting
+	float specular = 0.0f;
+	if (diffuse != 0.0f)
+	{
+		float specularLight = 0.50f;
+		vec3 viewDirection = normalize(camPos - crntPos);
+		vec3 halfwayVec = normalize(viewDirection + lightDir);
+		float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
+		specular = specAmount * specularLight;
+	};
+
 
     return (texture(texture_diffuse1, TexCoords) * diffuse * attenuation + 
-            texture(texture_specular1, TexCoords).r * specular * attenuation) * flameLightColor;
+            texture(texture_specular1, TexCoords).r * specular * attenuation) * lightColor;
 }
 
 float ShadowCalculation(vec4 fragPosLightSpace)
@@ -137,13 +137,17 @@ vec4 direcLight()
 	vec3 lightDirectionMir = vec3(lightDirection.x, -lightDirection.y, lightDirection.z);
 	float diffuse = max(dot(normal, lightDirectionMir), 0.0f);
 
-	//specular lighting 
-	float specularLight = 0.50f;
-	vec3 viewDirection = normalize(camPos - crntPos);
-	lightDirectionMir = vec3(-lightDirection.x, lightDirection.y, -lightDirection.z);
-	vec3 reflectionDirection = reflect(lightDirectionMir, normal);
-	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
-	float specular = specAmount * specularLight;
+	// specular lighting
+	float specular = 0.0f;
+	if (diffuse != 0.0f)
+	{
+		float specularLight = 0.50f;
+		vec3 viewDirection = normalize(camPos - crntPos);
+		vec3 halfwayVec = normalize(viewDirection + lightDirectionMir);
+		float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
+		specular = specAmount * specularLight;
+	};
+
 
 	vec4 finalLightColor = calculateLightColor();
 
@@ -163,16 +167,21 @@ vec4 spotLight()
 
 	//diffuse lighting 
 	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(lightPos - crntPos);
+	vec3 lightDir = normalize(lightPos - crntPos);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
-	//specular lighting
-	float specularLight = 0.50f;
-	vec3 viewDirection = normalize(camPos - crntPos);
-	vec3 reflectionDirection = reflect(-lightDirection, normal);
-	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
-	float specular = specAmount * specularLight;
+	// specular lighting
+	float specular = 0.0f;
+	if (diffuse != 0.0f)
+	{
+		float specularLight = 0.50f;
+		vec3 viewDirection = normalize(camPos - crntPos);
+		vec3 halfwayVec = normalize(viewDirection + lightDir);
+		float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
+		specular = specAmount * specularLight;
+	};
 
+	// Calcola l'intensità della luce in base all'angolo rispetto al centro del cono
 	float angle = dot(vec3(0.0f, -1.0f, 0.0f), -lightDirection);
 	float inten = clamp((angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0f);
 
@@ -187,17 +196,5 @@ float linearizeDepth(float depth)
 void main()
 {
 	vec4 directionalLight = direcLight();
-	vec4 flameLight1 = pointLight(flamePos1);
-	vec4 flameLight2 = pointLight(flamePos2);
-	vec4 flameLight3 = pointLight(flamePos3);
-	vec4 flameLight4 = pointLight(flamePos4);
-
-	if(angle >=60.0 && angle <= 215.0)
-	{
-		FragColor = directionalLight + flameLight1 + flameLight2 + flameLight3 + flameLight4;
-	}
-	else
-	{
-		FragColor = directionalLight;
-	}
+	FragColor = directionalLight;
 }

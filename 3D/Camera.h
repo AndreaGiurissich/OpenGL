@@ -45,5 +45,5 @@ public:
 	// Gestisce il movimento della camera
 	void inputs(GLFWwindow* window, float xmin, float xmax, float zmin, float zmax);
 	// Gestisce le collisioni della camera
-	bool checkCollision(float xmin, float xmax, float zmin, float zmax);
+	bool checkPosition(float xmin, float xmax, float zmin, float zmax);
 };

@@ -49,7 +49,6 @@ public:
 	Mat4 scale(Vec3 s);
 	Mat4 rotation(float degrees, Vec3 axis);
 	Mat4 perspective(float fov, float aspect, float near, float far);
-	Mat4 orthographic(float fov, float aspect, float near, float far);
 	Mat4 ortho(float left, float right, float bottom, float top, float near, float far);
 	Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up);
 	Mat4 lookAtCubemap(Vec3 eye, Vec3 target, Vec3 up);
