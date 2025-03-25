@@ -83,11 +83,11 @@ int main()
 	for (rapidxml::xml_node<>* model_node = root_node->first_node("model"); model_node; model_node = model_node->next_sibling("model"))
 	{
 		std::string path = model_node->first_node("path")->value();
-		auto it = modelPathMap.find(path);
+		auto it = modelPathMap.find(path); //iteratore per la mappa
 		int modelIndex;
 
 		if (it != modelPathMap.end()) {
-			// Modello già caricato usa indice esistente
+			//Se iteratore si ferma prima della fine, allora modello già caricato usa indice esistente
 			modelIndex = it->second;
 		}
 		else {
@@ -95,7 +95,7 @@ int main()
 			Model newModel(path, model_node->first_node("flipUVs")->value());
 			uniqueModels.push_back(newModel);
 			modelIndex = uniqueModels.size() - 1;
-			modelPathMap[path] = modelIndex;
+			modelPathMap[path] = modelIndex; // Aggiungi il path del modello alla mappa e associa l'indice
 		}
 		// Crea la model matrix
 		Mat4 model = Mat4();
