@@ -252,7 +252,7 @@ int main()
 		angle -= 70.0f;
 
 		//stampa angolo
-		//std::cout << angle << std::endl;
+		std::cout << angle << std::endl;
 
 		counter++;
 		

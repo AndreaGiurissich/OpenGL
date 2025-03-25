@@ -47,14 +47,14 @@ vec4 calculateLightColor()
 			if (angle <= 137.5f) 
 			{
 				// Prima metà notte: 30° to 107.5°
-				alpha = (angle - 30.0f) / 137.5f; // Normalizza a 0-1
+				alpha = (angle - 30.0f) / 107.5f; // Normalizza a 0-1
 				finalLightColor = mix(vec4(1.0, 0.4, 0.0, 1.0), nightColor, alpha);
 				return finalLightColor;
 			}
 			else if (angle > 137.5f) 
 			{
 				// Seconda metà notte: 107.5° to 245°
-				alpha = (245.0f - angle) / 137.5f; // Normalizza to 1-0
+				alpha = (245.0f - angle) / 107.5f; // Normalizza to 1-0
 				finalLightColor = mix(vec4(1.0, 0.6, 0.0, 1.0), nightColor, alpha);
 				return finalLightColor;
 			}

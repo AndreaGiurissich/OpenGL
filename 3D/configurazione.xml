@@ -2,8 +2,8 @@
 
 <Root>
 	<window>
-		<width>1920</width>
-		<height>1080</height>
+		<width>1080</width>
+		<height>720</height>
 	</window>
 
 	<BoundingBox>
@@ -12,25 +12,6 @@
 		<zmin>-0.18</zmin>
 		<zmax>0.09</zmax>
 	</BoundingBox>
-
-	<model>
-		<name>amogus</name>
-		<path>models/amongus/among us.obj</path>
-		<flipUVs>true</flipUVs>
-
-		<translatex>0</translatex>
-		<translatey>-1.9</translatey>
-		<translatez>0</translatez>
-
-		<scalex>0.0005</scalex>
-		<scaley>0.0005</scaley>
-		<scalez>0.0005</scalez>
-
-		<gradi>0.0</gradi>
-		<rotatex>0.0</rotatex>
-		<rotatey>0.0</rotatey>
-		<rotatez>0.0</rotatez>
-	</model>
 	
 	<model>
 		<name>Sponza</name>
